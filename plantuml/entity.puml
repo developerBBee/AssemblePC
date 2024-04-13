@@ -1,0 +1,128 @@
+@startuml
+
+entity Items {
+  itemId : VARCHAR [PK]
+  --
+  itemCategoryId : INT [FK]
+  makerId : INT [FK]
+  --
+  itemName : VARCHAR
+  linkUrl : VARCHAR
+  imageUrl : VARCHAR
+  detail : VARCHAR
+  price : INT
+  rank : INT
+  flag1 : INT
+  flag2 : INT
+  releaseDate : VARCHAR
+  outdated : INT
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+entity ItemCategory {
+  itemCategoryId : INT [PK]
+  --
+  categoryName : VARCHAR
+  isSingleChoice : INT
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+entity Maker {
+  makerId : INT [PK]
+  --
+  makerName : VARCHAR
+  makerFullName : VARCHAR
+  country : VARCHAR
+  makerUrl : VARCHAR
+  logoUri : VARCHAR
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+entity User {
+  userId : VARCHAR [PK]
+  --
+  favoriteItemId : VARCHAR [FK]
+  favoriteMakerId : VARCHAR [FK]
+  --
+  userName : String
+  userEmail : String
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+entity Assemblies {
+  assemblyId : INT [PK]
+  --
+  ownerUserId : VARCHAR [FK]
+  --
+  assemblyName : VARCHAR
+  assemblyUrl : VARCHAR
+  ownerComment : VARCHAR
+  favoriteCount : INT
+  referenceCount : INT
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+entity AssembleDetails {
+  detailId : INT [PK]
+  --
+  assemblyId : INT [FK]
+  itemId : INT [FK]
+  priceAtRegistered : INT
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+entity favoriteItems {
+  id : INT [PK]
+  --
+  ownerUserId : VARCHAR [FK]
+  favoriteItemId : VARCHAR [FK]
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+entity favoriteMakers {
+  id : INT [PK]
+  --
+  ownerUserId : VARCHAR [FK]
+  favoriteMakerId : INT [FK]
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+entity favoriteAssemblies {
+  id : INT [PK]
+  --
+  ownerUserId : VARCHAR [FK]
+  favoriteAssemblyId : INT [FK]
+  --
+  createdAT : TIMESTAMP
+  updatedAT : TIMESTAMP
+}
+
+Items }|--|| ItemCategory
+Items }|--|| Maker
+AssembleDetails }|--|| Assemblies
+AssembleDetails }|--|{ Items
+User ||--|{ Assemblies
+User ||--|{ favoriteItems
+User ||--|{ favoriteMakers
+User ||--|{ favoriteAssemblies
+favoriteItems }|--|| Items
+favoriteMakers }|--|| Maker
+favoriteAssemblies }|--|| Assemblies
+
+@enduml
