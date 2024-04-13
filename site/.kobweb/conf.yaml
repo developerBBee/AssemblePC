@@ -1,0 +1,14 @@
+site:
+  title: "Assemble_pc"
+
+server:
+  files:
+    dev:
+      contentRoot: "build/processedResources/js/main/public"
+      script: "build/dist/js/developmentExecutable/assemble_pc.js"
+      api: "build/libs/assemble_pc.jar"
+    prod:
+      script: "build/dist/js/productionExecutable/assemble_pc.js"
+      siteRoot: ".kobweb/site"
+
+  port: 8080
