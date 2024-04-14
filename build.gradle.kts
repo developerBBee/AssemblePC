@@ -1,3 +1,7 @@
+plugins {
+    alias(libs.plugins.kotlinx.serialization) apply false
+}
+
 subprojects {
     repositories {
         mavenCentral()

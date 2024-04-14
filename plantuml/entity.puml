@@ -1,7 +1,7 @@
 @startuml
 
 entity Items {
-  itemId : VARCHAR [PK]
+  itemId : INT [PK]
   --
   itemCategoryId : INT [FK]
   makerId : INT [FK]
@@ -9,29 +9,29 @@ entity Items {
   itemName : VARCHAR
   linkUrl : VARCHAR
   imageUrl : VARCHAR
-  detail : VARCHAR
+  desc : VARCHAR
   price : INT
   rank : INT
   flag1 : INT
   flag2 : INT
   releaseDate : VARCHAR
-  outdated : INT
+  outdated : BOOLEAN
   --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
-entity ItemCategory {
+entity ItemCategories {
   itemCategoryId : INT [PK]
   --
   categoryName : VARCHAR
   isSingleChoice : INT
   --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
-entity Maker {
+entity Makers {
   makerId : INT [PK]
   --
   makerName : VARCHAR
@@ -40,21 +40,19 @@ entity Maker {
   makerUrl : VARCHAR
   logoUri : VARCHAR
   --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
-entity User {
+entity Users {
   userId : VARCHAR [PK]
   --
-  favoriteItemId : VARCHAR [FK]
-  favoriteMakerId : VARCHAR [FK]
+  userName : VARCHAR
+  userEmail : VARCHAR
+  password : VARCHAR
   --
-  userName : String
-  userEmail : String
-  --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
 entity Assemblies {
@@ -65,64 +63,64 @@ entity Assemblies {
   assemblyName : VARCHAR
   assemblyUrl : VARCHAR
   ownerComment : VARCHAR
-  favoriteCount : INT
-  referenceCount : INT
+  referenceAssemblyId : INT?
   --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
-entity AssembleDetails {
+entity AssemblyDetails {
   detailId : INT [PK]
   --
   assemblyId : INT [FK]
   itemId : INT [FK]
+  --
   priceAtRegistered : INT
   --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
 entity favoriteItems {
   id : INT [PK]
   --
   ownerUserId : VARCHAR [FK]
-  favoriteItemId : VARCHAR [FK]
+  itemId : INT [FK]
   --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
 entity favoriteMakers {
   id : INT [PK]
   --
   ownerUserId : VARCHAR [FK]
-  favoriteMakerId : INT [FK]
+  makerId : INT [FK]
   --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
 entity favoriteAssemblies {
   id : INT [PK]
   --
   ownerUserId : VARCHAR [FK]
-  favoriteAssemblyId : INT [FK]
+  assemblyId : INT [FK]
   --
-  createdAT : TIMESTAMP
-  updatedAT : TIMESTAMP
+  createdAt : TIMESTAMP
+  updatedAt : TIMESTAMP
 }
 
-Items }|--|| ItemCategory
-Items }|--|| Maker
-AssembleDetails }|--|| Assemblies
-AssembleDetails }|--|{ Items
-User ||--|{ Assemblies
-User ||--|{ favoriteItems
-User ||--|{ favoriteMakers
-User ||--|{ favoriteAssemblies
-favoriteItems }|--|| Items
-favoriteMakers }|--|| Maker
+Items }|--|| ItemCategories
+Items }|--|| Makers
+AssemblyDetails }|--|| Assemblies
+AssemblyDetails }o--|{ Items
+Users ||--|{ Assemblies
+Users ||--|{ favoriteItems
+Users ||--|{ favoriteMakers
+Users ||--|{ favoriteAssemblies
+favoriteItems }o--|| Items
+favoriteMakers }o--|| Makers
 favoriteAssemblies }|--|| Assemblies
 
 @enduml

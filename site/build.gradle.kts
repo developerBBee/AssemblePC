@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.kobweb.application)
     alias(libs.plugins.kobwebx.markdown)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 group = "bbee.developer.jp.assemble_pc"
@@ -31,6 +32,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(compose.runtime)
+            implementation(libs.kotlinx.serialization)
         }
 
         jsMain.dependencies {
@@ -41,11 +43,21 @@ kotlin {
             // Uncomment the following if you want access to a large set of font-awesome icons:
             // implementation(libs.silk.icons.fa)
             implementation(libs.kobwebx.markdown)
+            implementation(libs.kotlinx.serialization)
         }
 
         // Uncomment the following if you pass `includeServer = true` into the `configAsKobwebApplication` call.
         jvmMain.dependencies {
             compileOnly(libs.kobweb.api) // Provided by Kobweb backend at runtime
+            implementation(libs.exposed.core)
+            implementation(libs.exposed.crypt)
+            implementation(libs.exposed.dao)
+            implementation(libs.exposed.jdbc)
+            implementation(libs.exposed.json)
+            implementation(libs.exposed.kotlin.datetime)
+            implementation(libs.exposed.money)
+            implementation(libs.h2.database)
+            implementation(libs.kotlinx.serialization)
         }
     }
 }
