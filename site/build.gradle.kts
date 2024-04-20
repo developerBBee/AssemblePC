@@ -32,6 +32,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(compose.runtime)
+            implementation(libs.dotenv.kotlin)
+            implementation(libs.firebase.kotlin.auth)
             implementation(libs.kotlinx.serialization)
         }
 
