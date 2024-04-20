@@ -32,13 +32,12 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(compose.runtime)
-            implementation(libs.dotenv.kotlin)
-            implementation(libs.firebase.kotlin.auth)
             implementation(libs.kotlinx.serialization)
         }
 
         jsMain.dependencies {
             implementation(compose.html.core)
+            implementation(libs.firebase.kotlin.auth)
             implementation(libs.kobweb.core)
             implementation(libs.kobweb.silk)
             // This default template uses built-in SVG icons, but what's available is limited.
@@ -58,6 +57,7 @@ kotlin {
             implementation(libs.exposed.json)
             implementation(libs.exposed.kotlin.datetime)
             implementation(libs.exposed.money)
+            implementation(libs.firebase.admin)
             implementation(libs.h2.database)
             implementation(libs.kotlinx.serialization)
         }

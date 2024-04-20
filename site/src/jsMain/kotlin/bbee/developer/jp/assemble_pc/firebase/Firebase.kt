@@ -1,4 +1,4 @@
-package bbee.developer.jp.assemble_pc
+package bbee.developer.jp.assemble_pc.firebase
 
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth

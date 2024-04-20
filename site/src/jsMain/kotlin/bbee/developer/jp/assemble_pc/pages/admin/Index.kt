@@ -5,7 +5,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import bbee.developer.jp.assemble_pc.auth
+import bbee.developer.jp.assemble_pc.firebase.auth
+import bbee.developer.jp.assemble_pc.util.createAnonymousUser
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -17,7 +18,6 @@ import com.varabyte.kobweb.compose.ui.modifiers.textAlign
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.gitlive.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 @Page
@@ -36,18 +36,11 @@ fun AdminPage() {
                 .collect {
                     println("signInAnonymously")
                     auth.signInAnonymously()
-                }
+                    println("call createAnonymousUser()")
 
-            auth.authStateChanged
-                .filterNotNull()
-                .collect { firebaseUser ->
-                    firebaseUser.getIdToken(false)
-                        ?.also {
-                            TODO("Login API with JWT")
-                        }
-                        ?: kotlin.run {
-                            TODO("Error message")
-                        }
+                    createAnonymousUser()
+                        .takeIf { it }
+                        ?.run { println("createAnonymousUser() succeeded") }
                 }
         }
     }

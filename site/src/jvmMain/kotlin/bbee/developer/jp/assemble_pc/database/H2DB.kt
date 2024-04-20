@@ -52,19 +52,19 @@ fun initDatabase(context: InitApiContext) {
 
 class H2DB(private val context: InitApiContext) : H2Repository {
     private val database = Database.connect(
-        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;",
+        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;", // TODO: In memory DB for debug
         driver = "org.h2.Driver",
         user = "root",
         password = "",
     )
 
-    override suspend fun addUserAnonymous(): Boolean {
+    override suspend fun addUserAnonymous(uid: String): Boolean {
         val now = currentDateTime
 
         return transaction(database) {
             context.logger.debug("addUserAnonymous() start insert")
             Users.insert {
-                it[userId] = UUID.randomUUID().toString()
+                it[userId] = uid
                 it[createdAt] = now
                 it[updatedAt] = now
             }
@@ -99,13 +99,13 @@ class H2DB(private val context: InitApiContext) : H2Repository {
         }
     }
 
-    override suspend fun addAssembly(userId: String, assembly: Assembly): Boolean {
+    override suspend fun addAssembly(uid: String, assembly: Assembly): Boolean {
         val now = currentDateTime
 
         return transaction(database) {
             context.logger.debug("addAssembly() start insert")
             Assemblies.insert {
-                it[ownerUserId] = userId
+                it[ownerUserId] = uid
                 it[assemblyName] = assembly.assemblyName
                 it[assemblyUrl] = assembly.assemblyUrl
                 it[ownerComment] = assembly.ownerComment
