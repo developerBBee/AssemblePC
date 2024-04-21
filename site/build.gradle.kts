@@ -60,6 +60,13 @@ kotlin {
             implementation(libs.firebase.admin)
             implementation(libs.h2.database)
             implementation(libs.kotlinx.serialization)
+            implementation(libs.ktor.client.core.jvm)
+            implementation(libs.ktor.client.cio.jvm)
+            implementation(libs.koin.core.jvm)
+        }
+
+        jvmTest.dependencies {
+            implementation(libs.kotlin.test)
         }
     }
 }
