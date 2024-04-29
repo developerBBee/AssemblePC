@@ -1,5 +1,7 @@
 import com.varabyte.kobweb.gradle.application.extensions.AppBlock.LegacyRouteRedirectStrategy
 import com.varabyte.kobweb.gradle.application.util.configAsKobwebApplication
+import kotlinx.html.dom.document
+import kotlinx.html.script
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -16,6 +18,16 @@ kobweb {
     app {
         index {
             description.set("Powered by Kobweb")
+
+            document {
+                lang.set("ja")
+            }
+
+            head.add {
+                script {
+                    src = "https://platform.twitter.com/widgets.js"
+                }
+            }
         }
 
         // Only legacy sites need this set. Sites built after 0.16.0 should default to DISALLOW.
@@ -45,6 +57,7 @@ kotlin {
             // implementation(libs.silk.icons.fa)
             implementation(libs.kobwebx.markdown)
             implementation(libs.kotlinx.serialization)
+            implementation(libs.silk.icons.fa)
         }
 
         // Uncomment the following if you pass `includeServer = true` into the `configAsKobwebApplication` call.
