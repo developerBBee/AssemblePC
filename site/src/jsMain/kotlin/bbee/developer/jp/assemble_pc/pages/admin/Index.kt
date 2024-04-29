@@ -6,7 +6,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import bbee.developer.jp.assemble_pc.firebase.auth
-import bbee.developer.jp.assemble_pc.util.createAnonymousUser
+import bbee.developer.jp.assemble_pc.util.signInAnonymous
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -17,7 +17,6 @@ import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.compose.ui.modifiers.textAlign
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.gitlive.firebase.auth.FirebaseUser
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 @Page
@@ -30,18 +29,7 @@ fun AdminPage() {
 
     LaunchedEffect(Unit) {
         scope.launch {
-            // If no user in local storage, run signInAnonymously.
-            auth.authStateChanged
-                .filter { it == null }
-                .collect {
-                    println("signInAnonymously")
-                    auth.signInAnonymously()
-                    println("call createAnonymousUser()")
-
-                    createAnonymousUser()
-                        .takeIf { it }
-                        ?.run { println("createAnonymousUser() succeeded") }
-                }
+            signInAnonymous()
         }
     }
 
