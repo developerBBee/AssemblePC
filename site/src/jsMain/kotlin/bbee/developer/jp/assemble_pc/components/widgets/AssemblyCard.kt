@@ -7,10 +7,9 @@ import bbee.developer.jp.assemble_pc.util.largeSize
 import bbee.developer.jp.assemble_pc.util.maxLines
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
-import com.varabyte.kobweb.compose.css.Overflow
 import com.varabyte.kobweb.compose.css.TextAlign
-import com.varabyte.kobweb.compose.css.TextOverflow
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
+import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
@@ -30,10 +29,8 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.minWidth
 import com.varabyte.kobweb.compose.ui.modifiers.onClick
-import com.varabyte.kobweb.compose.ui.modifiers.overflow
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.textAlign
-import com.varabyte.kobweb.compose.ui.modifiers.textOverflow
 import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.silk.components.layout.HorizontalDivider
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
@@ -47,10 +44,23 @@ import org.jetbrains.compose.web.css.px
 fun AssemblyCard(
     breakpoint: Breakpoint
 ) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.px),
+        contentAlignment = Alignment.Center
+    ) {
+        AssemblyCardContent(breakpoint = breakpoint)
+    }
+}
+
+@Composable
+fun AssemblyCardContent(
+    breakpoint: Breakpoint
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .margin(topBottom = 16.px, leftRight = 16.px)
             .backgroundColor(Colors.White)
             .borderRadius(8.px)
             .boxShadow(blurRadius = 4.px, color = Theme.TRANSLUCENT.rgb),
@@ -92,8 +102,6 @@ fun AssemblyHeader(
                 .fontFamily(Const.FONT_FAMILY)
                 .fontWeight(FontWeight.Bold)
                 .fontSize(breakpoint.largeSize())
-                .textOverflow(TextOverflow.Ellipsis)
-                .overflow(Overflow.Hidden)
                 .maxLines(1),
             text = "コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強")
 
@@ -105,8 +113,6 @@ fun AssemblyHeader(
                 .fontFamily(Const.FONT_FAMILY)
                 .fontWeight(FontWeight.Bold)
                 .fontSize(breakpoint.largeSize())
-                .textOverflow(TextOverflow.Ellipsis)
-                .overflow(Overflow.Hidden)
                 .maxLines(1),
             text = "作成者：山田XYZ")
     }

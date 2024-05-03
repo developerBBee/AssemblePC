@@ -1,9 +1,13 @@
 package bbee.developer.jp.assemble_pc.util
 
+import com.varabyte.kobweb.compose.css.Overflow
+import com.varabyte.kobweb.compose.css.TextOverflow
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.border
 import com.varabyte.kobweb.compose.ui.modifiers.outline
+import com.varabyte.kobweb.compose.ui.modifiers.overflow
+import com.varabyte.kobweb.compose.ui.modifiers.textOverflow
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import org.jetbrains.compose.web.css.CSSSizeValue
@@ -23,12 +27,15 @@ fun Modifier.noBorder(): Modifier = this
         color = Colors.Transparent
     )
 
-fun Modifier.maxLines(maxLines: Int): Modifier = this.styleModifier {
-    property("display", "-webkit-box")
-    property("-webkit-line-clamp", "$maxLines")
-    property("line-clamp", "$maxLines")
-    property("-webkit-box-orient", "vertical")
-}
+fun Modifier.maxLines(maxLines: Int): Modifier = this
+    .textOverflow(TextOverflow.Ellipsis)
+    .overflow(Overflow.Hidden)
+    .styleModifier {
+        property("display", "-webkit-box")
+        property("-webkit-line-clamp", "$maxLines")
+        property("line-clamp", "$maxLines")
+        property("-webkit-box-orient", "vertical")
+    }
 
 fun Breakpoint.smallSize(): CSSSizeValue<CSSUnit.px> = when (this) {
     Breakpoint.ZERO -> 9.px
