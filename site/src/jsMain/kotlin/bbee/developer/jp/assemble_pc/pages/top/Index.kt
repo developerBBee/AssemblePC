@@ -53,7 +53,6 @@ fun TopContents(breakpoint: Breakpoint) {
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
-
         if (breakpoint >= Breakpoint.XL) Advertisement(modifier = Modifier.margin(right = 16.px))
 
         Column(

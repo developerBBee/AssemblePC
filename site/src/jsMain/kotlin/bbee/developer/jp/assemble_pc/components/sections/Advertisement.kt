@@ -5,10 +5,9 @@ import bbee.developer.jp.assemble_pc.models.Theme
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
-import com.varabyte.kobweb.compose.ui.modifiers.height
+import com.varabyte.kobweb.compose.ui.modifiers.fillMaxHeight
 import com.varabyte.kobweb.compose.ui.modifiers.minWidth
 import com.varabyte.kobweb.compose.ui.modifiers.width
-import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 
 @Composable
@@ -18,7 +17,7 @@ fun Advertisement(
     Column(
         modifier = modifier
             .width(200.px)
-            .height(200.percent) // TODO
+            .fillMaxHeight() // TODO
             .minWidth(200.px)
             .backgroundColor(Theme.TRANSLUCENT.rgb)
     ) {

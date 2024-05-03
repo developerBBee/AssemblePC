@@ -9,8 +9,6 @@ import bbee.developer.jp.assemble_pc.util.maxLines
 import bbee.developer.jp.assemble_pc.util.smallSize
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.ObjectFit
-import com.varabyte.kobweb.compose.css.Overflow
-import com.varabyte.kobweb.compose.css.TextOverflow
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
@@ -26,10 +24,8 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.minSize
 import com.varabyte.kobweb.compose.ui.modifiers.objectFit
-import com.varabyte.kobweb.compose.ui.modifiers.overflow
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.size
-import com.varabyte.kobweb.compose.ui.modifiers.textOverflow
 import com.varabyte.kobweb.silk.components.graphics.Image
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.components.text.SpanText
@@ -58,8 +54,6 @@ fun AssemblyThumbnail(
                     .color(Colors.Black)
                     .fontFamily(Const.FONT_FAMILY)
                     .fontSize(breakpoint.largeSize())
-                    .textOverflow(TextOverflow.Ellipsis)
-                    .overflow(Overflow.Hidden)
                     .maxLines(2),
                 text = "ABCD-12345-67890ABCD-12345-67890ABCD-12345-67890ABCD-12345-67890ABCD-12345-67890ABCD-12345-67890"
             )

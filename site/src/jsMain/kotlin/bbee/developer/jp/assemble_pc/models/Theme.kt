@@ -9,8 +9,12 @@ enum class Theme(
     val rgb: CSSColorValue,
 ) {
     LIGHT_GRAY(
-        hex = "#000000",
-        rgb = rgba(0, 0, 0, 0.5)
+        hex = "#C4C4C4",
+        rgb = rgb(196, 196, 196)
+    ),
+    DARK_GRAY(
+        hex = "#545454",
+        rgb = rgb(84, 84, 84)
     ),
     RED(
         hex = "#FF2020",
