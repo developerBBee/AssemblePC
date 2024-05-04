@@ -1,6 +1,6 @@
 package bbee.developer.jp.assemble_pc.models
 
-enum class Parts(val displayName: String) {
+actual enum class ItemCategory(val displayName: String) {
     CASE("PCケース"),
     MOTHER_BOARD("マザーボード"),
     PSU("電源"),

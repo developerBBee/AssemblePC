@@ -1,4 +1,4 @@
-package bbee.developer.jp.assemble_pc.model
+package bbee.developer.jp.assemble_pc.models
 
 data class User(
     val userName: String,

@@ -1,7 +1,7 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
-import bbee.developer.jp.assemble_pc.models.Parts
+import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.Res
 import bbee.developer.jp.assemble_pc.util.largeSize
@@ -43,7 +43,7 @@ fun AssemblyThumbnail(
             )
 
             CategoryTag(
-                parts = Parts.CASE,
+                itemCategory = ItemCategory.CASE,
                 fontSize = breakpoint.smallSize(),
             )
         }

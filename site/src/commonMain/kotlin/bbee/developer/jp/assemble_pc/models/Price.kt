@@ -1,4 +1,4 @@
-package bbee.developer.jp.assemble_pc.model
+package bbee.developer.jp.assemble_pc.models
 
 import kotlinx.serialization.Serializable
 

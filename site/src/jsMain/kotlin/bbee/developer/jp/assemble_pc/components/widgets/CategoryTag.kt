@@ -1,7 +1,7 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
-import bbee.developer.jp.assemble_pc.models.Parts
+import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -20,7 +20,7 @@ import org.jetbrains.compose.web.css.px
 
 @Composable
 fun CategoryTag(
-    parts: Parts,
+    itemCategory: ItemCategory,
     fontSize: CSSSizeValue<CSSUnit.px>,
 ) {
     Box(
@@ -34,7 +34,7 @@ fun CategoryTag(
                 .color(Colors.Black)
                 .fontFamily(Const.FONT_FAMILY)
                 .fontSize(fontSize),
-            text = parts.displayName
+            text = itemCategory.displayName
         )
     }
 }
