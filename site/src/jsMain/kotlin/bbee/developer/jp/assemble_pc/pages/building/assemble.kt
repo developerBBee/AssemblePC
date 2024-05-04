@@ -13,7 +13,7 @@ import bbee.developer.jp.assemble_pc.components.widgets.FloatingButton
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
 import bbee.developer.jp.assemble_pc.firebase.auth
 import bbee.developer.jp.assemble_pc.models.BuildingTabMenu
-import bbee.developer.jp.assemble_pc.models.Parts
+import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
@@ -126,27 +126,27 @@ fun AssembleContents(breakpoint: Breakpoint) {
 
         PartsCard(
             breakpoint = breakpoint,
-            parts = Parts.CASE,
+            itemCategory = ItemCategory.CASE,
             buttonType = PartsButtonType.DELETION,
         ) {}
         PartsCard(
             breakpoint = breakpoint,
-            parts = Parts.CASE,
+            itemCategory = ItemCategory.CASE,
             buttonType = PartsButtonType.DELETION,
         ) {}
         PartsCard(
             breakpoint = breakpoint,
-            parts = Parts.CASE,
+            itemCategory = ItemCategory.CASE,
             buttonType = PartsButtonType.DELETION,
         ) {}
         PartsCard(
             breakpoint = breakpoint,
-            parts = Parts.CASE,
+            itemCategory = ItemCategory.CASE,
             buttonType = PartsButtonType.DELETION,
         ) {}
         PartsCard(
             breakpoint = breakpoint,
-            parts = Parts.CASE,
+            itemCategory = ItemCategory.CASE,
             buttonType = PartsButtonType.DELETION,
         ) {}
     }

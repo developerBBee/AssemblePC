@@ -1,10 +1,10 @@
-package bbee.developer.jp.assemble_pc.model
+package bbee.developer.jp.assemble_pc.models
 
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Item(
-    val itemCategoryId: Int,
+    val itemCategoryId: ItemCategoryId,
     val makerId: Int,
     val itemName: String,
     val linkUrl: String,
@@ -21,4 +21,15 @@ data class Item(
 @Serializable
 data class ItemId(
     val id: Int,
-)
+) {
+    override operator fun equals(other: Any?): Boolean {
+        return when (other is ItemId) {
+            true -> (id == other.id)
+            false -> false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return id
+    }
+}

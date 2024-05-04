@@ -9,7 +9,7 @@ import bbee.developer.jp.assemble_pc.components.layouts.CommonLayout
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
 import bbee.developer.jp.assemble_pc.firebase.auth
 import bbee.developer.jp.assemble_pc.models.BuildingTabMenu
-import bbee.developer.jp.assemble_pc.models.Parts
+import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.pages.mypage.SearchBar
@@ -95,7 +95,7 @@ fun BuildingContents(
 @Composable
 fun PartsMenu(
     fontSize: CSSSizeValue<CSSUnit.px>,
-    selectedParts: Parts = Parts.MOTHER_BOARD
+    selectedItemCategory: ItemCategory = ItemCategory.MOTHER_BOARD
 ) {
     Column(
         modifier = Modifier
@@ -105,11 +105,11 @@ fun PartsMenu(
             .borderRadius(8.px),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Parts.entries.forEach { parts ->
+        ItemCategory.entries.forEach { parts ->
             SpanText(
                 modifier = Modifier
                     .margin(topBottom = 8.px)
-                    .color(if (selectedParts == parts) Theme.BLUE.rgb else Theme.DARK_GRAY.rgb)
+                    .color(if (selectedItemCategory == parts) Theme.BLUE.rgb else Theme.DARK_GRAY.rgb)
                     .fontSize(fontSize)
                     .fontFamily(Const.FONT_FAMILY)
                     .fontWeight(FontWeight.Bold)

@@ -1,7 +1,7 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
-import bbee.developer.jp.assemble_pc.models.Parts
+import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
@@ -46,7 +46,7 @@ import org.jetbrains.compose.web.css.px
 @Composable
 fun PartsCard(
     breakpoint: Breakpoint,
-    parts: Parts? = null,
+    itemCategory: ItemCategory? = null,
     buttonType: PartsButtonType,
     onClick: () -> Unit
 ) {
@@ -56,7 +56,7 @@ fun PartsCard(
                 .fillMaxWidth()
                 .padding(if (breakpoint >= Breakpoint.MD) 16.px else 4.px)
                 .thenIf(
-                    condition = parts != null,
+                    condition = itemCategory != null,
                     other = Modifier.padding(
                         top = if (breakpoint >= Breakpoint.MD) 16.px else 12.px,
                         bottom = if (breakpoint >= Breakpoint.MD) 16.px else 4.px,
@@ -71,9 +71,9 @@ fun PartsCard(
             )
         }
 
-        parts?.let {
+        itemCategory?.let {
             CategoryTag(
-                parts = it,
+                itemCategory = it,
                 fontSize = breakpoint.largeSize()
             )
         }

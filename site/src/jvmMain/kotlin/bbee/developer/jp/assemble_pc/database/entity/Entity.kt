@@ -87,6 +87,7 @@ object Assemblies : Table() {
     val assemblyUrl: Column<String> = varchar("assemblyUrl", 255)
     val ownerComment: Column<String> = varchar("makerUrl", 511)
     val referenceAssemblyId: Column<Int?> = integer("referenceAssemblyId").nullable()
+    val published: Column<Boolean> = bool("published")
     val createdAt: Column<LocalDateTime> = datetime("createdAt")
     val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
 
@@ -96,6 +97,7 @@ object Assemblies : Table() {
 
 object AssemblyDetails : Table() {
     val detailId: Column<Int> = integer("detailId").autoIncrement()
+    val ownerUserId: Column<String> = varchar("ownerUserId", 36)
     val assemblyId: Column<Int> = integer("assemblyId")
     val itemId: Column<Int> = integer("itemId")
     val priceAtRegistered: Column<Int> = integer("priceAtRegistered")

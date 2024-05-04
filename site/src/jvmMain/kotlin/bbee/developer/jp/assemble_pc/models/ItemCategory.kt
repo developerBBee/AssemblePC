@@ -1,8 +1,8 @@
-package bbee.developer.jp.assemble_pc.task.domain.model
+package bbee.developer.jp.assemble_pc.models
 
 import bbee.developer.jp.assemble_pc.util.URL
 
-enum class Item(val url: String) {
+actual enum class ItemCategory(val url: String) {
     CASE(URL.CASE),
     MOTHER_BOARD(URL.MOTHER_BOARD),
     PSU(URL.PSU),
