@@ -1,7 +1,7 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
-import bbee.developer.jp.assemble_pc.models.Theme
+import bbee.developer.jp.assemble_pc.models.Parts
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.Res
 import bbee.developer.jp.assemble_pc.util.largeSize
@@ -15,8 +15,6 @@ import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
-import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
-import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
 import com.varabyte.kobweb.compose.ui.modifiers.color
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxWidth
 import com.varabyte.kobweb.compose.ui.modifiers.fontFamily
@@ -44,7 +42,10 @@ fun AssemblyThumbnail(
                 src = Res.Image.ITEM
             )
 
-            CategoryTag(breakpoint = breakpoint)
+            CategoryTag(
+                parts = Parts.CASE,
+                fontSize = breakpoint.smallSize(),
+            )
         }
 
         Column {
@@ -80,25 +81,5 @@ fun AssemblyThumbnail(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun CategoryTag(
-    breakpoint: Breakpoint
-) {
-    Box(
-        modifier = Modifier
-            .backgroundColor(Theme.PURPLE.rgb)
-            .borderRadius(8.px)
-            .padding(leftRight = 4.px)
-    ) {
-        SpanText(
-            modifier = Modifier
-                .color(Colors.Black)
-                .fontFamily(Const.FONT_FAMILY)
-                .fontSize(breakpoint.smallSize()),
-            text = "PCケース"
-        )
     }
 }

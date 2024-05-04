@@ -1,6 +1,8 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
+import bbee.developer.jp.assemble_pc.models.Parts
+import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.Res
@@ -33,6 +35,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.size
 import com.varabyte.kobweb.compose.ui.modifiers.textDecorationLine
 import com.varabyte.kobweb.compose.ui.modifiers.width
+import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.graphics.Image
 import com.varabyte.kobweb.silk.components.navigation.Link
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
@@ -42,28 +45,53 @@ import org.jetbrains.compose.web.css.px
 
 @Composable
 fun PartsCard(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    parts: Parts? = null,
+    buttonType: PartsButtonType,
+    onClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(if(breakpoint >= Breakpoint.MD) 16.px else 4.px),
-        contentAlignment = Alignment.Center
-    ) {
-        PartsCardContent(breakpoint = breakpoint)
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(if (breakpoint >= Breakpoint.MD) 16.px else 4.px)
+                .thenIf(
+                    condition = parts != null,
+                    other = Modifier.padding(
+                        top = if (breakpoint >= Breakpoint.MD) 16.px else 12.px,
+                        bottom = if (breakpoint >= Breakpoint.MD) 16.px else 4.px,
+                        leftRight = if (breakpoint >= Breakpoint.MD) 16.px else 4.px
+                    )
+                ),
+        ) {
+            PartsCardContent(
+                breakpoint = breakpoint,
+                buttonType = buttonType,
+                onClick = onClick
+            )
+        }
+
+        parts?.let {
+            CategoryTag(
+                parts = it,
+                fontSize = breakpoint.largeSize()
+            )
+        }
     }
 }
 
 @Composable
 fun PartsCardContent(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    buttonType: PartsButtonType,
+    onClick: () -> Unit,
 ) {
     val imageSize = if (breakpoint >= Breakpoint.MD) 104 else 64
 
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.px)
+            .padding(if (breakpoint >= Breakpoint.MD) 16.px else 8.px)
             .backgroundColor(Colors.White)
             .borderRadius(8.px)
             .boxShadow(blurRadius = 4.px, color = Theme.TRANSLUCENT.rgb),
@@ -125,7 +153,9 @@ fun PartsCardContent(
 
                 FloatingButton(
                     breakpoint = breakpoint,
-                    text = "登録"
+                    text = buttonType.text,
+                    backgroundColor = buttonType.bgColor,
+                    onClick = onClick
                 )
             }
         }
