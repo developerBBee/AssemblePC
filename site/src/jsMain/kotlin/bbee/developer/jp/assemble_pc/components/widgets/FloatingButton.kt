@@ -33,7 +33,7 @@ fun FloatingButton(
     text: String,
     color: CSSColorValue = Colors.White,
     backgroundColor: CSSColorValue = Theme.BLUE.rgb,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
