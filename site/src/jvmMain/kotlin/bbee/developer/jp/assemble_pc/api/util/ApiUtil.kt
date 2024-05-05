@@ -16,6 +16,14 @@ inline fun <reified T> Response.setBody(data: T) {
     setBodyText(Json.encodeToString(data))
 }
 
+inline fun <reified T> Result<T>.onFailureCommonResponse(
+    context: ApiContext,
+    functionName: String
+): Result<T> = onFailure { e ->
+    context.logger.error("$functionName API EXCEPTIN: $e")
+    context.res.setBody(e.message ?: "$functionName API error")
+}
+
 fun ApiContext.getUid(): String = req.headers["Authorization"]
     ?.first()
     ?.removePrefix("Bearer ")

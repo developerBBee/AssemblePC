@@ -1,6 +1,7 @@
 package bbee.developer.jp.assemble_pc.api
 
 import bbee.developer.jp.assemble_pc.api.util.getUid
+import bbee.developer.jp.assemble_pc.api.util.onFailureCommonResponse
 import bbee.developer.jp.assemble_pc.api.util.setBody
 import bbee.developer.jp.assemble_pc.database.H2DB
 import bbee.developer.jp.assemble_pc.models.ItemCategory
@@ -22,5 +23,5 @@ suspend fun getItems(context: ApiContext) {
             .also { items ->
                 context.res.setBody(items)
             }
-    }
+    }.onFailureCommonResponse(context = context, functionName = "getItems")
 }
