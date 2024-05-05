@@ -15,11 +15,15 @@ import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.ItemCategoryId
 import bbee.developer.jp.assemble_pc.models.ItemDetail
 import bbee.developer.jp.assemble_pc.models.ItemId
+import bbee.developer.jp.assemble_pc.models.MakerId
 import bbee.developer.jp.assemble_pc.models.Price
+import bbee.developer.jp.assemble_pc.task.data.repository.LocalRepository
 import bbee.developer.jp.assemble_pc.util.currentDateTime
+import bbee.developer.jp.assemble_pc.util.localRepository
 import com.varabyte.kobweb.api.data.add
 import com.varabyte.kobweb.api.init.InitApi
 import com.varabyte.kobweb.api.init.InitApiContext
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -38,7 +42,10 @@ import java.util.UUID
 @InitApi
 fun initDatabase(context: InitApiContext) {
     context.logger.debug("initDatabase() called")
-    context.data.add(H2DB(context))
+    H2DB(context).also { db ->
+        localRepository = db
+        context.data.add(db)
+    }
 
     transaction {
         addLogger(StdOutSqlLogger) // TODO: Where are logs stored?
@@ -64,7 +71,7 @@ fun initDatabase(context: InitApiContext) {
     }
 }
 
-class H2DB(private val context: InitApiContext) : H2Repository {
+class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository {
     private val database = Database.connect(
         url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;", // TODO: In memory DB for debug
         driver = "org.h2.Driver",
@@ -83,32 +90,6 @@ class H2DB(private val context: InitApiContext) : H2Repository {
                 it[updatedAt] = now
             }
             context.logger.debug("addUserAnonymous() finish insert")
-            true
-        }
-    }
-
-    override suspend fun addItem(item: Item): Boolean {
-        val now = currentDateTime
-
-        return transaction(database) {
-            context.logger.debug("addItem() start insert")
-            Items.insert {
-                it[itemCategoryId] = item.itemCategoryId.id
-                it[makerId] = item.makerId
-                it[itemName] = item.itemName
-                it[linkUrl] = item.linkUrl
-                it[imageUrl] = item.imageUrl
-                it[desc] = item.description
-                it[price] = item.price.value
-                it[rank] = item.rank
-                it[flag1] = item.flag1
-                it[flag2] = item.flag2
-                it[releaseDate] = item.releaseDate
-                it[outdated] = item.outdated
-                it[createdAt] = now
-                it[updatedAt] = now
-            }
-            context.logger.debug("addItem() finish insert")
             true
         }
     }
@@ -233,7 +214,7 @@ class H2DB(private val context: InitApiContext) : H2Repository {
                     ItemDetail(
                         itemId = ItemId(id = it[Items.itemId]),
                         itemCategoryId = ItemCategoryId(id = it[Items.itemCategoryId]),
-                        makerId = it[Items.makerId],
+                        makerId = MakerId(id = it[Items.makerId]),
                         itemName = it[Items.itemName],
                         linkUrl = it[Items.linkUrl],
                         imageUrl = it[Items.imageUrl],
@@ -278,6 +259,67 @@ class H2DB(private val context: InitApiContext) : H2Repository {
                         }
                     )
                 }
+        }
+    }
+
+    override fun saveItem(item: Item) {
+        val now = currentDateTime
+
+        val exists = transaction(database) {
+            Items.select(Items.itemId)
+                .where { Items.linkUrl eq item.linkUrl }
+                .toList()
+                .isNotEmpty()
+        }
+
+        if (exists) {
+            updateItem(item = item, now = now)
+        } else {
+            addItem(item = item, now = now)
+        }
+    }
+
+    private fun addItem(item: Item, now: LocalDateTime): Boolean {
+        return transaction(database) {
+            context.logger.debug("addItem() start insert")
+            Items.insert {
+                it[itemCategoryId] = item.itemCategoryId.id
+                it[makerId] = item.makerId.id
+                it[itemName] = item.itemName
+                it[linkUrl] = item.linkUrl
+                it[imageUrl] = item.imageUrl
+                it[desc] = item.description
+                it[price] = item.price.value
+                it[rank] = item.rank
+                it[flag1] = item.flag1
+                it[flag2] = item.flag2
+                it[releaseDate] = item.releaseDate
+                it[outdated] = item.outdated
+                it[createdAt] = now
+                it[updatedAt] = now
+            }
+            context.logger.debug("addItem() finish insert")
+            true
+        }
+    }
+
+    private fun updateItem(item: Item, now: LocalDateTime): Boolean {
+        return transaction(database) {
+            context.logger.debug("updateItem() start update")
+            Items.update {
+                it[itemName] = item.itemName
+                it[imageUrl] = item.imageUrl
+                it[desc] = item.description
+                it[price] = item.price.value
+                it[rank] = item.rank
+                it[flag1] = item.flag1
+                it[flag2] = item.flag2
+                it[releaseDate] = item.releaseDate
+                it[outdated] = item.outdated
+                it[updatedAt] = now
+            }
+            context.logger.debug("updateItem() finish update")
+            true
         }
     }
 }

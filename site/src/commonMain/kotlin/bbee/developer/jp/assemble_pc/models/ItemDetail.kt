@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class ItemDetail(
     val itemId: ItemId,
     val itemCategoryId: ItemCategoryId,
-    val makerId: Int,
+    val makerId: MakerId,
     val itemName: String,
     val linkUrl: String,
     val imageUrl: String,
@@ -29,5 +29,9 @@ data class ItemCategoryId(
 
     override fun hashCode(): Int {
         return id
+    }
+
+    override fun toString(): String {
+        return "$id"
     }
 }
