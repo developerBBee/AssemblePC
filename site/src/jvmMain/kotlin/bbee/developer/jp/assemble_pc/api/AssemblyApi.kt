@@ -2,6 +2,7 @@ package bbee.developer.jp.assemble_pc.api
 
 import bbee.developer.jp.assemble_pc.api.util.getBody
 import bbee.developer.jp.assemble_pc.api.util.getUid
+import bbee.developer.jp.assemble_pc.api.util.onFailureCommonResponse
 import bbee.developer.jp.assemble_pc.api.util.setBody
 import bbee.developer.jp.assemble_pc.database.H2DB
 import bbee.developer.jp.assemble_pc.models.Assembly
@@ -19,10 +20,7 @@ suspend fun addAssembly(context: ApiContext) {
                 }
             }
         }
-    }.onFailure { e ->
-        context.logger.error("addAssembly API EXCEPTION: $e")
-        context.res.setBody(e.message ?: "addAssembly API error")
-    }
+    }.onFailureCommonResponse(context = context, functionName = "addAssembly")
 }
 
 @Api(routeOverride = "update_assembly")
@@ -37,10 +35,7 @@ suspend fun updateAssembly(context: ApiContext) {
                 }
             }
         }
-    }.onFailure { e ->
-        context.logger.error("updateAssembly API EXCEPTION: $e")
-        context.res.setBody(e.message ?: "updateAssembly API error")
-    }
+    }.onFailureCommonResponse(context = context, functionName = "updateAssembly")
 }
 
 @Api(routeOverride = "delete_assembly")
@@ -55,10 +50,7 @@ suspend fun deleteAssembly(context: ApiContext) {
                 }
             }
         }
-    }.onFailure { e ->
-        context.logger.error("deleteAssembly API EXCEPTION: $e")
-        context.res.setBody(e.message ?: "deleteAssembly API error")
-    }
+    }.onFailureCommonResponse(context = context, functionName = "deleteAssembly")
 }
 
 @Api(routeOverride = "add_assembly_detail")
@@ -77,10 +69,7 @@ suspend fun addAssemblyDetail(context: ApiContext) {
                 }
             }
         }
-    }.onFailure { e ->
-        context.logger.error("addAssemblyDetail API EXCEPTION: $e")
-        context.res.setBody(e.message ?: "addAssemblyDetail API error")
-    }
+    }.onFailureCommonResponse(context = context, functionName = "addAssemblyDetail")
 }
 
 @Api(routeOverride = "update_assembly_detail")
@@ -99,10 +88,7 @@ suspend fun updateAssemblyDetail(context: ApiContext) {
                 }
             }
         }
-    }.onFailure { e ->
-        context.logger.error("updateAssemblyDetail API EXCEPTION: $e")
-        context.res.setBody(e.message ?: "updateAssemblyDetail API error")
-    }
+    }.onFailureCommonResponse(context = context, functionName = "updateAssemblyDetail")
 }
 
 @Api(routeOverride = "delete_assembly_details")
@@ -120,8 +106,5 @@ suspend fun deleteAssemblyDetails(context: ApiContext) {
                 }
             }
         }
-    }.onFailure { e ->
-        context.logger.error("updateAssemblyDetail API EXCEPTION: $e")
-        context.res.setBody(e.message ?: "updateAssemblyDetail API error")
-    }
+    }.onFailureCommonResponse(context = context, functionName = "deleteAssemblyDetails")
 }
