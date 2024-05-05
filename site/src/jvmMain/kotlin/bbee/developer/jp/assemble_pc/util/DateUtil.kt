@@ -4,12 +4,16 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.time.Duration.Companion.days
 
 private val TIMEZONE = TimeZone.currentSystemDefault()
+private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")
 
 val currentDateTime get() = Clock.System.now().toLocalDateTime(TIMEZONE)
+val currentDateString: String get() = currentDateTime.toJavaLocalDateTime().format(DATE_FORMATTER)
 
 fun LocalDateTime.plusDays(days: Int): LocalDateTime {
     return this.toInstant(TIMEZONE).plus(days.days).toLocalDateTime(TIMEZONE)

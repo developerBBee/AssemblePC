@@ -9,4 +9,15 @@ data class Price(
     override fun toString(): String {
         return "¥ $value"
     }
+
+    companion object {
+        fun from(value: String): Price {
+            return value
+                .replace("¥", "")
+                .replace(",", "")
+                .trim()
+                .toInt()
+                .let { Price(it) }
+        }
+    }
 }

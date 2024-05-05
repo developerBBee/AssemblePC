@@ -6,6 +6,7 @@ import io.ktor.client.engine.cio.endpoint
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.Url
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import java.io.Closeable
 import java.io.InputStream
@@ -27,7 +28,7 @@ class TaskHttpClient : Closeable {
         }
     }
 
-    suspend fun getHtml(url: String, streamHandler: (InputStream) -> Unit): Int {
+    suspend fun getHtml(url: Url, streamHandler: (InputStream) -> Unit): Int {
         val response = client.get(url)
         response.bodyAsChannel().toInputStream().use {
             streamHandler(it)

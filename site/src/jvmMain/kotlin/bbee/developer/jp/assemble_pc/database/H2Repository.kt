@@ -4,13 +4,11 @@ import bbee.developer.jp.assemble_pc.models.Assembly
 import bbee.developer.jp.assemble_pc.models.AssemblyDetail
 import bbee.developer.jp.assemble_pc.models.AssemblyId
 import bbee.developer.jp.assemble_pc.models.DetailId
-import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.ItemDetail
 
 interface H2Repository {
     suspend fun addUserAnonymous(uid: String): Boolean
-    suspend fun addItem(item: Item): Boolean
     suspend fun addAssembly(uid: String, assembly: Assembly): Boolean
     suspend fun updateAssembly(assembly: Assembly): Boolean
     suspend fun deleteAssembly(assemblyId: AssemblyId): Boolean
