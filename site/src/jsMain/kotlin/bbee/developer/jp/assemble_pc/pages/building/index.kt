@@ -4,11 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import bbee.developer.jp.assemble_pc.components.layouts.CommonLayout
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
 import bbee.developer.jp.assemble_pc.firebase.auth
 import bbee.developer.jp.assemble_pc.models.BuildingTabMenu
+import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
@@ -35,6 +38,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontFamily
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.margin
+import com.varabyte.kobweb.compose.ui.modifiers.minWidth
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
@@ -57,6 +61,8 @@ fun BuildingPage() {
     val user: FirebaseUser? by auth.authStateChanged
         .collectAsState(initial = null, scope.coroutineContext)
 
+    val items = remember { mutableStateListOf<Item>() }
+
     LaunchedEffect(Unit) {
         scope.launch {
             signInAnonymous()
@@ -67,27 +73,32 @@ fun BuildingPage() {
         breakpoint = breakpoint,
         selectedMenu = BuildingTabMenu.SELECTION
     ) {
-        BuildingContents(breakpoint)
+        BuildingContents(breakpoint = breakpoint, items = items)
     }
 }
 
 @Composable
 fun BuildingContents(
     breakpoint: Breakpoint,
+    items: List<Item>,
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
         if (breakpoint >= Breakpoint.MD) {
-            Box(modifier = Modifier.padding(16.px)) {
+            Box(
+                modifier = Modifier
+                    .minWidth(200.px)
+                    .padding(leftRight = 4.px, topBottom = 16.px)
+            ) {
                 PartsMenu(fontSize = breakpoint.largeSize())
             }
         }
 
         Box(
             modifier = Modifier
-                .weight(1)
+                .fillMaxWidth()
                 .padding(if (breakpoint >= Breakpoint.MD) 16.px else 8.px)
         ) {
-            PartsListLayout(breakpoint = breakpoint)
+            PartsListLayout(breakpoint = breakpoint, items = items)
         }
     }
 }
@@ -123,7 +134,8 @@ fun PartsMenu(
 
 @Composable
 fun PartsListLayout(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    items: List<Item>? = null,
 ) {
     Column(
         modifier = Modifier
@@ -151,10 +163,14 @@ fun PartsListLayout(
                     .borderRadius(8.px),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                PartsCard(breakpoint = breakpoint, buttonType = PartsButtonType.REGISTRATION) {}
-                PartsCard(breakpoint = breakpoint, buttonType = PartsButtonType.ADDITION) {}
-                PartsCard(breakpoint = breakpoint, buttonType = PartsButtonType.REGISTRATION) {}
-                PartsCard(breakpoint = breakpoint, buttonType = PartsButtonType.REGISTRATION) {}
+                items?.forEach { item ->
+                    PartsCard(
+                        breakpoint = breakpoint,
+                        item = item,
+                        buttonType = PartsButtonType.REGISTRATION,
+                        onClick = {}
+                    )
+                }
             }
         }
     }

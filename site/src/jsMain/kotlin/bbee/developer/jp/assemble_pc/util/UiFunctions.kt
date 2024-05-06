@@ -62,7 +62,7 @@ fun Breakpoint.largeSize(): CSSSizeValue<CSSUnit.px> = when (this) {
 }
 
 fun Breakpoint.hugeSize(): CSSSizeValue<CSSUnit.px> = when (this) {
-    Breakpoint.ZERO -> 12.px
+    Breakpoint.ZERO -> 11.px
     Breakpoint.SM -> 12.px
     Breakpoint.MD -> 14.px
     Breakpoint.LG -> 16.px

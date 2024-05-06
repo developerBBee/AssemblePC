@@ -9,6 +9,14 @@ fun String.toUrl(): Url = Url(this)
 
 fun Url.append(path: String): Url = Url(this.toString() + path)
 
+fun String.replaceHtmlEntity(): String {
+    var str = this
+    HtmlEntityMap.forEach { (key, value) ->
+        str = str.replace(key, value)
+    }
+    return str
+}
+
 // TODO
 fun getDetail(word: String, category: ItemCategory): String {
     return when (category) {

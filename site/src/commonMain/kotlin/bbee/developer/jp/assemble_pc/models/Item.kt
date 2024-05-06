@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Item(
+    val itemId: ItemId? = null,
     val itemCategoryId: ItemCategoryId,
     val makerId: MakerId,
     val itemName: String,
@@ -18,9 +19,10 @@ data class Item(
     val outdated: Boolean,
 ) {
     override fun toString(): String {
-        return "itemCategoryId: $itemCategoryId, makerId: $makerId, itemName: $itemName" +
-                ", linkUrl: $linkUrl, imageUrl: $imageUrl, description: $description" +
-                ", price: $price, rank: $rank, releaseDate: $releaseDate, outdated: $outdated"
+        return "itemId: $itemId, itemCategoryId: $itemCategoryId, makerId: $makerId" +
+                ", itemName: $itemName, linkUrl: $linkUrl, imageUrl: $imageUrl" +
+                ", description: $description, price: $price, rank: $rank" +
+                ", releaseDate: $releaseDate, outdated: $outdated"
     }
 }
 
@@ -30,6 +32,26 @@ data class ItemId(
 ) {
     override operator fun equals(other: Any?): Boolean {
         return when (other is ItemId) {
+            true -> (id == other.id)
+            false -> false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return id
+    }
+
+    override fun toString(): String {
+        return "$id"
+    }
+}
+
+@Serializable
+data class ItemCategoryId(
+    val id: Int,
+) {
+    override operator fun equals(other: Any?): Boolean {
+        return when (other is ItemCategoryId) {
             true -> (id == other.id)
             false -> false
         }

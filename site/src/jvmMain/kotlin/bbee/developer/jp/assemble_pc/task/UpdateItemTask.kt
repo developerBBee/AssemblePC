@@ -16,6 +16,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
+private const val DEBUG = false
 private val WAIT_INTERVAL = 60000.milliseconds
 
 @InitApi
@@ -29,6 +30,9 @@ class UpdateItemTask {
         private val controller = TaskController()
         fun start() {
             CoroutineScope(Dispatchers.IO).launch {
+                if (DEBUG) {
+                    controller.getItemHtml(category = ItemCategory.CPU)
+                }
 
                 while (isActive) {
                     val next = getNext()

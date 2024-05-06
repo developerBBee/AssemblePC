@@ -5,7 +5,6 @@ import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.Maker
 import bbee.developer.jp.assemble_pc.models.Price
 import bbee.developer.jp.assemble_pc.task.domain.repository.TaskRepository
-import bbee.developer.jp.assemble_pc.util.HtmlEntityMap
 import bbee.developer.jp.assemble_pc.util.KakakuRegex
 import bbee.developer.jp.assemble_pc.util.append
 import bbee.developer.jp.assemble_pc.util.currentDateString
@@ -13,6 +12,7 @@ import bbee.developer.jp.assemble_pc.util.first
 import bbee.developer.jp.assemble_pc.util.getDetail
 import bbee.developer.jp.assemble_pc.util.localRepository
 import bbee.developer.jp.assemble_pc.util.logger
+import bbee.developer.jp.assemble_pc.util.replaceHtmlEntity
 import io.ktor.http.Url
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -88,14 +88,8 @@ class TaskController : KoinComponent {
 
                 bufferedReader.use { br ->
                     br.readText()
-                        .substring(MAX_READ_WORDS)
-                        .let {
-                            var str = it
-                            HtmlEntityMap.forEach { (key, value) ->
-                                str = str.replace(key, value)
-                            }
-                            str
-                        }
+                        .substring(0, MAX_READ_WORDS)
+                        .replaceHtmlEntity()
                         .let {
                             Item(
                                 itemCategoryId = category.toId(),
