@@ -9,17 +9,17 @@ import com.varabyte.kobweb.api.Api
 import com.varabyte.kobweb.api.ApiContext
 import com.varabyte.kobweb.api.data.getValue
 
-@Api(routeOverride = "get_item")
+@Api(routeOverride = "get_items")
 suspend fun getItems(context: ApiContext) {
     context.runCatching {
         getUid() // user authentication
 
-        val skip = req.params["skip"]?.toLong() ?: 0
         val category = req.params["category"]?.let { name ->
             ItemCategory.entries.first { it.name == name }
         } ?: throw IllegalArgumentException("Invalid ItemCategory specification")
+        val skip = req.params["skip"]?.toLong() ?: 0L
 
-        context.data.getValue<H2DB>().getItems(skip = skip, category = category)
+        context.data.getValue<H2DB>().getItems(category = category, skip = skip)
             .also { items ->
                 context.res.setBody(items)
             }

@@ -6,8 +6,19 @@ import kotlinx.serialization.Serializable
 data class Price(
     val value: Int,
 ) {
+    override fun equals(other: Any?): Boolean {
+        if (other is Price) {
+            return other.value == this.value
+        }
+        return false
+    }
+
     override fun toString(): String {
         return "¥ $value"
+    }
+
+    override fun hashCode(): Int {
+        return value
     }
 
     companion object {

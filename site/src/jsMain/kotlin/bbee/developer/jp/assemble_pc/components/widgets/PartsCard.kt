@@ -1,11 +1,11 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
+import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
-import bbee.developer.jp.assemble_pc.util.Res
 import bbee.developer.jp.assemble_pc.util.hugeSize
 import bbee.developer.jp.assemble_pc.util.largeSize
 import bbee.developer.jp.assemble_pc.util.maxLines
@@ -46,6 +46,7 @@ import org.jetbrains.compose.web.css.px
 @Composable
 fun PartsCard(
     breakpoint: Breakpoint,
+    item: Item,
     itemCategory: ItemCategory? = null,
     buttonType: PartsButtonType,
     onClick: () -> Unit
@@ -66,6 +67,7 @@ fun PartsCard(
         ) {
             PartsCardContent(
                 breakpoint = breakpoint,
+                item = item,
                 buttonType = buttonType,
                 onClick = onClick
             )
@@ -83,6 +85,7 @@ fun PartsCard(
 @Composable
 fun PartsCardContent(
     breakpoint: Breakpoint,
+    item: Item,
     buttonType: PartsButtonType,
     onClick: () -> Unit,
 ) {
@@ -103,8 +106,8 @@ fun PartsCardContent(
                 .fontSize(breakpoint.largeSize())
                 .fontWeight(FontWeight.Bold)
                 .textDecorationLine(TextDecorationLine.Underline),
-            path = "https://google.com",
-            text = "CC560 ドスパラWeb限定モデル"
+            path = item.linkUrl,
+            text = item.itemName,
         )
 
         Row(
@@ -113,14 +116,13 @@ fun PartsCardContent(
         ) {
             Image(
                 modifier = Modifier.size(imageSize.px).objectFit(ObjectFit.Contain),
-                src = Res.Image.ITEM
+                src = item.imageUrl
             )
 
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                val description = "DEEPCOOL\n電源規格：ATX PS2\nATX/MicroATX/Mini-ITX/Mini-ITX/Mini-ITX/Mini-ITX/Mini-ITX/Mini-ITX/Mini-ITX/Mini-ITX\n210x477x416 mm"
-                description.split("\n")
+                item.description.split("\n")
                     .filter { it.isNotBlank() }
                     .forEach {
                         SpanText(
@@ -136,8 +138,9 @@ fun PartsCardContent(
             }
 
             Column(
-                modifier = Modifier.width(200.px),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .width(if (breakpoint >= Breakpoint.MD) 160.px else 120.px),
+                horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.Center
             ) {
                 SpanText(
@@ -148,7 +151,7 @@ fun PartsCardContent(
                         .fontSize(breakpoint.hugeSize())
                         .fontWeight(FontWeight.Bold)
                         .maxLines(1),
-                    text = "¥ 1,234,567"
+                    text = item.price.toString()
                 )
 
                 FloatingButton(

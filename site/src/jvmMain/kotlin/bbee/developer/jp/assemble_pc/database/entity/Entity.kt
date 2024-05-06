@@ -43,7 +43,7 @@ object Items : Table() {
     val itemName: Column<String> = varchar("itemName", 255)
     val linkUrl: Column<String> = varchar("linkUrl", 255)
     val imageUrl: Column<String> = varchar("imageUrl", 255)
-    val desc: Column<String> = varchar("desc", 4095)
+    val description: Column<String> = varchar("description", 4095)
     val price: Column<Int> = integer("price")
     val rank: Column<Int> = integer("rank")
     val flag1: Column<Int> = integer("flag1")

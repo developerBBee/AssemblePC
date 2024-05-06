@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -13,6 +14,7 @@ import bbee.developer.jp.assemble_pc.components.widgets.FloatingButton
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
 import bbee.developer.jp.assemble_pc.firebase.auth
 import bbee.developer.jp.assemble_pc.models.BuildingTabMenu
+import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
@@ -58,6 +60,8 @@ fun AssemblePage() {
     val user: FirebaseUser? by auth.authStateChanged
         .collectAsState(initial = null, scope.coroutineContext)
 
+    val items = remember { mutableStateListOf<Item>() }
+
     LaunchedEffect(Unit) {
         scope.launch {
             signInAnonymous()
@@ -68,7 +72,7 @@ fun AssemblePage() {
         breakpoint = breakpoint,
         selectedMenu = BuildingTabMenu.ASSEMBLY
     ) {
-        AssembleContents(breakpoint)
+        AssembleContents(breakpoint = breakpoint, items = items)
     }
 
     Box(
@@ -98,7 +102,10 @@ fun AssemblePage() {
 }
 
 @Composable
-fun AssembleContents(breakpoint: Breakpoint) {
+fun AssembleContents(
+    breakpoint: Breakpoint,
+    items: List<Item>,
+) {
     var comment: String by remember { mutableStateOf("") }
 
     Column(
@@ -124,31 +131,15 @@ fun AssembleContents(breakpoint: Breakpoint) {
                 }
         )
 
-        PartsCard(
-            breakpoint = breakpoint,
-            itemCategory = ItemCategory.CASE,
-            buttonType = PartsButtonType.DELETION,
-        ) {}
-        PartsCard(
-            breakpoint = breakpoint,
-            itemCategory = ItemCategory.CASE,
-            buttonType = PartsButtonType.DELETION,
-        ) {}
-        PartsCard(
-            breakpoint = breakpoint,
-            itemCategory = ItemCategory.CASE,
-            buttonType = PartsButtonType.DELETION,
-        ) {}
-        PartsCard(
-            breakpoint = breakpoint,
-            itemCategory = ItemCategory.CASE,
-            buttonType = PartsButtonType.DELETION,
-        ) {}
-        PartsCard(
-            breakpoint = breakpoint,
-            itemCategory = ItemCategory.CASE,
-            buttonType = PartsButtonType.DELETION,
-        ) {}
+        items.forEach { item ->
+            PartsCard(
+                breakpoint = breakpoint,
+                item = item,
+                itemCategory = ItemCategory.CASE,
+                buttonType = PartsButtonType.DELETION,
+                onClick = {}
+            )
+        }
     }
 
 }

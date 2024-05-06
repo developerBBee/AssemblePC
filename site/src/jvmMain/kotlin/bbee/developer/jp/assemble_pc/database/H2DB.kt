@@ -13,7 +13,6 @@ import bbee.developer.jp.assemble_pc.models.DetailId
 import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.ItemCategoryId
-import bbee.developer.jp.assemble_pc.models.ItemDetail
 import bbee.developer.jp.assemble_pc.models.ItemId
 import bbee.developer.jp.assemble_pc.models.MakerId
 import bbee.developer.jp.assemble_pc.models.Price
@@ -204,25 +203,30 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
-    override suspend fun getItems(skip: Long, category: ItemCategory): List<ItemDetail> {
+    override suspend fun getItems(category: ItemCategory, skip: Long): List<Item> {
         return transaction(database) {
+            context.logger.debug("getItems() start select")
             Items.selectAll()
                 .where(Items.itemCategoryId eq category.ordinal)
                 .orderBy(Items.rank)
                 .limit(n = 20, offset = skip)
                 .map {
-                    ItemDetail(
+                    Item(
                         itemId = ItemId(id = it[Items.itemId]),
                         itemCategoryId = ItemCategoryId(id = it[Items.itemCategoryId]),
                         makerId = MakerId(id = it[Items.makerId]),
                         itemName = it[Items.itemName],
                         linkUrl = it[Items.linkUrl],
                         imageUrl = it[Items.imageUrl],
-                        desc = it[Items.desc],
+                        description = it[Items.description],
                         price = Price(value = it[Items.price]),
                         rank = it[Items.rank],
                         releaseDate = it[Items.releaseDate],
+                        outdated = it[Items.outdated],
                     )
+                }
+                .also {
+                    context.logger.debug("getItems() finish select")
                 }
         }
     }
@@ -265,30 +269,31 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
     override fun saveItem(item: Item) {
         val now = currentDateTime
 
-        val exists = transaction(database) {
+        val itemId = transaction(database) {
             Items.select(Items.itemId)
                 .where { Items.linkUrl eq item.linkUrl }
                 .toList()
-                .isNotEmpty()
+                .ifEmpty { return@transaction null }
+                .first()[Items.itemId]
         }
 
-        if (exists) {
-            updateItem(item = item, now = now)
-        } else {
+        if (itemId == null) {
             addItem(item = item, now = now)
+        } else {
+            updateItem(item = item, now = now)
         }
     }
 
     private fun addItem(item: Item, now: LocalDateTime): Boolean {
         return transaction(database) {
-            context.logger.debug("addItem() start insert")
+            context.logger.debug("addItem() start insert : $item")
             Items.insert {
                 it[itemCategoryId] = item.itemCategoryId.id
                 it[makerId] = item.makerId.id
                 it[itemName] = item.itemName
                 it[linkUrl] = item.linkUrl
                 it[imageUrl] = item.imageUrl
-                it[desc] = item.description
+                it[description] = item.description
                 it[price] = item.price.value
                 it[rank] = item.rank
                 it[flag1] = item.flag1
@@ -306,10 +311,10 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
     private fun updateItem(item: Item, now: LocalDateTime): Boolean {
         return transaction(database) {
             context.logger.debug("updateItem() start update")
-            Items.update {
+            Items.update(where = { Items.itemId eq 1 } ) {
                 it[itemName] = item.itemName
                 it[imageUrl] = item.imageUrl
-                it[desc] = item.description
+                it[description] = item.description
                 it[price] = item.price.value
                 it[rank] = item.rank
                 it[flag1] = item.flag1

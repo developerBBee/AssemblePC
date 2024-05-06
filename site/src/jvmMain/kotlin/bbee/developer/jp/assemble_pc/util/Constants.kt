@@ -28,8 +28,8 @@ object KakakuRegex {
     val RANKING_URL = Regex("""<a href="($KAKAKU_BASE_URL.*)" class="rkgBoxLink">""")
     val MAKER_NAME = Regex("""<span class="digestMakerName">(.*)</span>""")
     val ITEM_NAME = Regex("""<h2 itemprop="name">(.*)</h2>""")
-    val IMAGE_URL = Regex("""<img itemprop="image" src="(.*)"""")
-    val PRICE_TEXT = Regex("""<span class="price">(.*)</span>""")
+    val IMAGE_URL = Regex("""src="(https://.*)" width="160" height="120" border="0"""")
+    val PRICE_TEXT = Regex("""<span class="priceTxt">¥([0-9,]+)</span>""")
     val RANK_TEXT = Regex("""<li class="ranking">.*<span class="num">(\d+)</span>位.*</li>""")
 }
 
