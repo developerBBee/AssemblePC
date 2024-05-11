@@ -1,25 +1,20 @@
 package bbee.developer.jp.assemble_pc.pages.building
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import bbee.developer.jp.assemble_pc.components.layouts.BuildingNavLayout
 import bbee.developer.jp.assemble_pc.components.layouts.CommonLayout
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
-import bbee.developer.jp.assemble_pc.firebase.auth
-import bbee.developer.jp.assemble_pc.models.BuildingTabMenu
+import bbee.developer.jp.assemble_pc.components.widgets.SearchBar
 import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
-import bbee.developer.jp.assemble_pc.pages.mypage.SearchBar
 import bbee.developer.jp.assemble_pc.util.Const
+import bbee.developer.jp.assemble_pc.util.IsUserLoggedIn
 import bbee.developer.jp.assemble_pc.util.largeSize
 import bbee.developer.jp.assemble_pc.util.maxLines
-import bbee.developer.jp.assemble_pc.util.signInAnonymous
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
@@ -39,13 +34,13 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.minWidth
+import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.core.Page
+import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.components.text.SpanText
 import com.varabyte.kobweb.silk.theme.breakpoint.rememberBreakpoint
-import dev.gitlive.firebase.auth.FirebaseUser
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.CSSSizeValue
 import org.jetbrains.compose.web.css.CSSUnit
 import org.jetbrains.compose.web.css.px
@@ -55,25 +50,15 @@ import org.jetbrains.compose.web.dom.Select
 @Page
 @Composable
 fun BuildingPage() {
-    val scope = rememberCoroutineScope()
     val breakpoint = rememberBreakpoint()
-
-    val user: FirebaseUser? by auth.authStateChanged
-        .collectAsState(initial = null, scope.coroutineContext)
-
     val items = remember { mutableStateListOf<Item>() }
 
-    LaunchedEffect(Unit) {
-        scope.launch {
-            signInAnonymous()
+    IsUserLoggedIn {
+        CommonLayout(breakpoint = breakpoint) {
+            BuildingNavLayout(breakpoint = breakpoint) {
+                BuildingContents(breakpoint = breakpoint, items = items)
+            }
         }
-    }
-
-    CommonLayout(
-        breakpoint = breakpoint,
-        selectedMenu = BuildingTabMenu.SELECTION
-    ) {
-        BuildingContents(breakpoint = breakpoint, items = items)
     }
 }
 
@@ -106,8 +91,9 @@ fun BuildingContents(
 @Composable
 fun PartsMenu(
     fontSize: CSSSizeValue<CSSUnit.px>,
-    selectedItemCategory: ItemCategory = ItemCategory.MOTHER_BOARD
 ) {
+    val context = rememberPageContext()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -117,15 +103,18 @@ fun PartsMenu(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         ItemCategory.entries.forEach { parts ->
+            val isSelected = context.route.path.contains(parts.route)
+
             SpanText(
                 modifier = Modifier
                     .margin(topBottom = 8.px)
-                    .color(if (selectedItemCategory == parts) Theme.BLUE.rgb else Theme.DARK_GRAY.rgb)
+                    .color(if (isSelected) Theme.BLUE.rgb else Theme.DARK_GRAY.rgb)
                     .fontSize(fontSize)
                     .fontFamily(Const.FONT_FAMILY)
                     .fontWeight(FontWeight.Bold)
                     .cursor(Cursor.Pointer)
-                    .maxLines(1),
+                    .maxLines(1)
+                    .onClick { context.router.navigateTo(parts.route) },
                 text = parts.displayName
             )
         }

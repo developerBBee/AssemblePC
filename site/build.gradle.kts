@@ -24,6 +24,12 @@ kobweb {
             }
 
             head.add {
+//                link(rel = "preconnect", href = "https://fonts.googleapis.com")
+//                link(rel = "preconnect", href = "https://fonts.gstatic.com") { attributes["crossorigin"] = "" }
+//                link(
+//                    href = "https://fonts.googleapis.com/css2?family=Roboto&display=swap",
+//                    rel = "stylesheet"
+//                )
                 script {
                     src = "https://platform.twitter.com/widgets.js"
                 }

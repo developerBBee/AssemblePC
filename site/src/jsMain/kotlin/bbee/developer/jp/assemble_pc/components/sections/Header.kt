@@ -3,11 +3,13 @@ package bbee.developer.jp.assemble_pc.components.sections
 import androidx.compose.runtime.Composable
 import bbee.developer.jp.assemble_pc.models.Content
 import bbee.developer.jp.assemble_pc.models.Theme
+import bbee.developer.jp.assemble_pc.navigation.Screen
 import bbee.developer.jp.assemble_pc.styles.NoUnderlineLinkVariant
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.Res
 import bbee.developer.jp.assemble_pc.util.StringRes
 import bbee.developer.jp.assemble_pc.util.dropTextShadow
+import bbee.developer.jp.assemble_pc.util.matchesRoute
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.TextAlign
@@ -38,6 +40,8 @@ import com.varabyte.kobweb.compose.ui.modifiers.textAlign
 import com.varabyte.kobweb.compose.ui.modifiers.textDecorationLine
 import com.varabyte.kobweb.compose.ui.modifiers.textShadow
 import com.varabyte.kobweb.compose.ui.thenIf
+import com.varabyte.kobweb.core.PageContext
+import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.graphics.Image
 import com.varabyte.kobweb.silk.components.navigation.Link
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
@@ -45,6 +49,8 @@ import org.jetbrains.compose.web.css.px
 
 @Composable
 fun Header(breakpoint: Breakpoint) {
+    val context = rememberPageContext()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -60,7 +66,7 @@ fun Header(breakpoint: Breakpoint) {
                 .borderRadius(r = 10.px)
                 .boxShadow(blurRadius = 4.px, color = Theme.TRANSLUCENT.rgb)
                 .cursor(Cursor.Pointer)
-                .onClick {  },
+                .onClick { context.router.navigateTo(Screen.TopPage.route) },
             src = Res.Image.LOGO,
         )
 
@@ -73,14 +79,15 @@ fun Header(breakpoint: Breakpoint) {
                     .fontSize(16.px)
                     .fontWeight(FontWeight.Bold)
                     .textAlign(TextAlign.Center)
-                    .textShadow(dropTextShadow),
+                    .textShadow(dropTextShadow)
+                    .onClick { context.router.navigateTo(Screen.TopPage.route) },
                 path = "",
                 text = StringRes.appTitle,
                 variant = NoUnderlineLinkVariant
             )
         }
 
-        HeaderMenu(selectedContent = Content.TOP)
+        HeaderMenu(context = context)
 
         Spacer()
 
@@ -100,7 +107,7 @@ fun Header(breakpoint: Breakpoint) {
 
 @Composable
 fun HeaderMenu(
-    selectedContent: Content? = null,
+    context: PageContext,
 ) {
     Row(
         modifier = Modifier.maxWidth(300.px),
@@ -108,6 +115,8 @@ fun HeaderMenu(
         horizontalArrangement = Arrangement.SpaceAround
     ) {
         Content.entries.forEach { content ->
+            val isSelected = content.matchesRoute(context)
+
             Box(
                 modifier = Modifier
                     .margin(leftRight = 8.px)
@@ -116,18 +125,19 @@ fun HeaderMenu(
             ) {
                 Link(
                     modifier = Modifier
-                        .color(if (content == selectedContent) Theme.YELLOW.rgb else Colors.White)
+                        .color(if (isSelected) Theme.YELLOW.rgb else Colors.White)
                         .thenIf(
-                            condition = content == selectedContent,
+                            condition = isSelected,
                             other = Modifier.textDecorationLine(TextDecorationLine.Underline)
                         )
                         .fontFamily(Const.FONT_FAMILY)
                         .fontSize(12.px)
                         .fontWeight(FontWeight.Bold)
-                        .textAlign(TextAlign.Center),
+                        .textAlign(TextAlign.Center)
+                        .onClick { context.router.navigateTo(content.route) },
                     path = "",
                     text = content.text,
-                    variant = if (content == selectedContent) null else NoUnderlineLinkVariant
+                    variant = if (isSelected) null else NoUnderlineLinkVariant
                 )
             }
         }
