@@ -1,26 +1,22 @@
 package bbee.developer.jp.assemble_pc.pages.building
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import bbee.developer.jp.assemble_pc.components.layouts.BuildingNavLayout
 import bbee.developer.jp.assemble_pc.components.layouts.CommonLayout
 import bbee.developer.jp.assemble_pc.components.widgets.FloatingButton
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
-import bbee.developer.jp.assemble_pc.firebase.auth
-import bbee.developer.jp.assemble_pc.models.BuildingTabMenu
 import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
+import bbee.developer.jp.assemble_pc.util.IsUserLoggedIn
 import bbee.developer.jp.assemble_pc.util.hugeSize
-import bbee.developer.jp.assemble_pc.util.signInAnonymous
 import com.varabyte.kobweb.compose.css.PointerEvents
 import com.varabyte.kobweb.compose.css.Resize
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -43,8 +39,6 @@ import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.theme.breakpoint.rememberBreakpoint
-import dev.gitlive.firebase.auth.FirebaseUser
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
@@ -53,56 +47,23 @@ import org.jetbrains.compose.web.dom.TextArea
 
 @Page
 @Composable
-fun AssemblePage() {
-    val scope = rememberCoroutineScope()
+fun AssemblyPage() {
     val breakpoint = rememberBreakpoint()
-
-    val user: FirebaseUser? by auth.authStateChanged
-        .collectAsState(initial = null, scope.coroutineContext)
-
     val items = remember { mutableStateListOf<Item>() }
 
-    LaunchedEffect(Unit) {
-        scope.launch {
-            signInAnonymous()
+    IsUserLoggedIn {
+        CommonLayout(breakpoint = breakpoint) {
+            BuildingNavLayout(breakpoint = breakpoint) {
+                AssemblyContents(breakpoint = breakpoint, items = items)
+            }
         }
-    }
 
-    CommonLayout(
-        breakpoint = breakpoint,
-        selectedMenu = BuildingTabMenu.ASSEMBLY
-    ) {
-        AssembleContents(breakpoint = breakpoint, items = items)
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.vh)
-            .pointerEvents(PointerEvents.None),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .pointerEvents(PointerEvents.Auto)
-                .padding(2.px)
-                .position(Position.Fixed)
-                .backgroundColor(Theme.TRANSLUCENT.rgb),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            FloatingButton(
-                breakpoint = breakpoint,
-                text = "投稿",
-                color = Colors.Black,
-                backgroundColor = Theme.YELLOW.rgb
-            ) {}
-        }
+        StickyActionBar(breakpoint = breakpoint)
     }
 }
 
 @Composable
-fun AssembleContents(
+fun AssemblyContents(
     breakpoint: Breakpoint,
     items: List<Item>,
 ) {
@@ -135,11 +96,39 @@ fun AssembleContents(
             PartsCard(
                 breakpoint = breakpoint,
                 item = item,
-                itemCategory = ItemCategory.CASE,
+                itemCategory = ItemCategory.from(id = item.itemCategoryId),
                 buttonType = PartsButtonType.DELETION,
                 onClick = {}
             )
         }
     }
+}
 
+
+@Composable
+fun StickyActionBar(breakpoint: Breakpoint) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.vh)
+            .pointerEvents(PointerEvents.None),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .pointerEvents(PointerEvents.Auto)
+                .padding(2.px)
+                .position(Position.Fixed)
+                .backgroundColor(Theme.TRANSLUCENT.rgb),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            FloatingButton(
+                breakpoint = breakpoint,
+                text = "投稿",
+                color = Colors.Black,
+                backgroundColor = Theme.YELLOW.rgb
+            ) {}
+        }
+    }
 }

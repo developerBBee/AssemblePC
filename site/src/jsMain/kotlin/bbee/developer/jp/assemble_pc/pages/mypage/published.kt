@@ -8,6 +8,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import bbee.developer.jp.assemble_pc.components.layouts.TabMenuLayout
 import bbee.developer.jp.assemble_pc.components.sections.Advertisement
 import bbee.developer.jp.assemble_pc.components.sections.Header
+import bbee.developer.jp.assemble_pc.components.widgets.AssemblyCard
 import bbee.developer.jp.assemble_pc.components.widgets.Profile
 import bbee.developer.jp.assemble_pc.components.widgets.SearchBar
 import bbee.developer.jp.assemble_pc.firebase.auth
@@ -34,7 +35,7 @@ import org.jetbrains.compose.web.css.px
 
 @Page
 @Composable
-fun MyPage() {
+fun PublishedPage() {
     val scope = rememberCoroutineScope()
     val breakpoint = rememberBreakpoint()
 
@@ -50,12 +51,12 @@ fun MyPage() {
     Column(modifier = Modifier.fillMaxSize()) {
         Header(breakpoint)
 
-        MyPageContents(breakpoint)
+        PublishedContents(breakpoint)
     }
 }
 
 @Composable
-fun MyPageContents(
+fun PublishedContents(
     breakpoint: Breakpoint
 ) {
     Row(
@@ -82,7 +83,23 @@ fun MyPageContents(
                 SearchBar(breakpoint = breakpoint)
             }
 
-            TabMenuLayout(breakpoint = breakpoint, tabList = MyTabMenu.toTabInfoList()) {}
+            TabMenuLayout(breakpoint = breakpoint, tabList = MyTabMenu.toTabInfoList()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+//                        MyTabMenu.CREATING -> {
+//                            SpanText(text = "作成中のアセンブリ")
+//                        }
+//                        MyTabMenu.PUBLISHED -> {
+                            AssemblyCard(breakpoint = breakpoint)
+                            AssemblyCard(breakpoint = breakpoint)
+                            AssemblyCard(breakpoint = breakpoint)
+                            AssemblyCard(breakpoint = breakpoint)
+//                        }
+//                        MyTabMenu.FAVORITE -> {
+//                            SpanText(text = "お気に入りのアセンブリ")
+//                        }
+//                    }
+                }
+            }
         }
 
         if (breakpoint >= Breakpoint.LG) Advertisement(modifier = Modifier.margin(left = 16.px))

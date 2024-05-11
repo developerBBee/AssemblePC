@@ -1,5 +1,11 @@
 package bbee.developer.jp.assemble_pc.util
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import bbee.developer.jp.assemble_pc.firebase.auth
 import com.varabyte.kobweb.compose.css.Overflow
 import com.varabyte.kobweb.compose.css.TextOverflow
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -10,10 +16,30 @@ import com.varabyte.kobweb.compose.ui.modifiers.overflow
 import com.varabyte.kobweb.compose.ui.modifiers.textOverflow
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.CSSSizeValue
 import org.jetbrains.compose.web.css.CSSUnit
 import org.jetbrains.compose.web.css.LineStyle
 import org.jetbrains.compose.web.css.px
+
+@Composable
+fun IsUserLoggedIn(content: @Composable () -> Unit) {
+    val scope = rememberCoroutineScope()
+    val user by auth.authStateChanged
+        .map { it?.js }
+        .collectAsState(initial = null, context = scope.coroutineContext)
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            signInAnonymous()
+        }
+    }
+
+    user?.let {
+        content()
+    }
+}
 
 fun Modifier.noBorder(): Modifier = this
     .border(
