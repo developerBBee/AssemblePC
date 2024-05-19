@@ -19,121 +19,121 @@ val TABLES = arrayOf(
 )
 
 object Samples : Table() {
-    val uuid: Column<String> = varchar("userId", 36)
-    val name: Column<String> = varchar("userName", 10)
+    val uuid: Column<String> = varchar("USER_Id", 36)
+    val name: Column<String> = varchar("USER_NAME", 10)
 
-    override val primaryKey = PrimaryKey(firstColumn = uuid, name = "PK_Samples_uuid")
+    override val primaryKey = PrimaryKey(firstColumn = uuid, name = "PK_SAMPLES_UUID")
 }
 
 object Users : Table() {
-    val userId: Column<String> = varchar("userId", 36)
-    val userName: Column<String?> = varchar("userName", 100).nullable()
-    val userEmail: Column<String?> = varchar("userEmail", 100).nullable()
-    val password: Column<String?> = varchar("password", 255).nullable()
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val userId: Column<String> = varchar("USER_Id", 36)
+    val userName: Column<String?> = varchar("USER_NAME", 100).nullable()
+    val userEmail: Column<String?> = varchar("USER_EMAIL", 100).nullable()
+    val password: Column<String?> = varchar("PASSWORD", 255).nullable()
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
-    override val primaryKey = PrimaryKey(firstColumn = userId, name = "PK_Users_userId")
+    override val primaryKey = PrimaryKey(firstColumn = userId, name = "PK_USERS_USER_ID")
 }
 
 object Items : Table() {
-    val itemId: Column<Int> = integer("itemId").autoIncrement()
-    val itemCategoryId: Column<Int> = integer("itemCategoryId")
-    val makerId: Column<Int> = integer("makerId")
-    val itemName: Column<String> = varchar("itemName", 255)
-    val linkUrl: Column<String> = varchar("linkUrl", 255)
-    val imageUrl: Column<String> = varchar("imageUrl", 255)
-    val description: Column<String> = varchar("description", 4095)
-    val price: Column<Int> = integer("price")
-    val rank: Column<Int> = integer("rank")
-    val flag1: Column<Int> = integer("flag1")
-    val flag2: Column<Int> = integer("flag2")
-    val releaseDate: Column<String> = varchar("releaseDate", 8)
-    val outdated: Column<Boolean> = bool("outdated")
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val itemId: Column<Int> = integer("ITEM_ID").autoIncrement()
+    val itemCategoryId: Column<Int> = integer("ITEM_CATEGORY_ID")
+    val makerId: Column<Int> = integer("MAKER_ID")
+    val itemName: Column<String> = varchar("ITEM_NAME", 255)
+    val linkUrl: Column<String> = varchar("LINK_URL", 255)
+    val imageUrl: Column<String> = varchar("IMAGE_URL", 255)
+    val description: Column<String> = varchar("DESCRIPTION", 4095)
+    val price: Column<Int> = integer("PRICE")
+    val rank: Column<Int> = integer("RANK")
+    val flag1: Column<Int> = integer("FLAG1")
+    val flag2: Column<Int> = integer("FLAG2")
+    val releaseDate: Column<String> = varchar("RELEASE_DATE", 8)
+    val outdated: Column<Boolean> = bool("OUTDATED")
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
-    override val primaryKey = PrimaryKey(firstColumn = itemId, name = "PK_Items_itemId")
+    override val primaryKey = PrimaryKey(firstColumn = itemId, name = "PK_ITEMS_ITEM_ID")
 }
 
 object ItemCategories : Table() {
-    val itemCategoryId: Column<Int> = integer("itemCategoryId").autoIncrement()
-    val categoryName: Column<String> = varchar("categoryName", 20)
-    val isSingleChoice: Column<Boolean> = bool("isSingleChoice")
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val itemCategoryId: Column<Int> = integer("ITEM_CATEGORY_ID").autoIncrement()
+    val categoryName: Column<String> = varchar("CATEGORY_NAME", 20)
+    val isSingleChoice: Column<Boolean> = bool("IS_SINGLE_CHOICE")
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
     override val primaryKey =
-        PrimaryKey(firstColumn = itemCategoryId, name = "PK_ItemCategories_itemCategoryId")
+        PrimaryKey(firstColumn = itemCategoryId, name = "PK_ITEM_CATEGORIES_ITEM_CATEGORY_ID")
 }
 
 object Makers : Table() {
-    val makerId: Column<Int> = integer("makerId").autoIncrement()
-    val makerName: Column<String> = varchar("makerName", 50)
-    val makerFullName: Column<String> = varchar("makerFullName", 100)
-    val country: Column<String> = varchar("country", 50)
-    val makerUrl: Column<String> = varchar("makerUrl", 255)
-    val logoUrl: Column<String> = varchar("logoUrl", 255)
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val makerId: Column<Int> = integer("MAKER_ID").autoIncrement()
+    val makerName: Column<String> = varchar("MAKER_NAME", 50)
+    val makerFullName: Column<String> = varchar("MAKER_FULL_NAME", 100)
+    val country: Column<String> = varchar("COUNTRY", 50)
+    val makerUrl: Column<String> = varchar("MAKER_URL", 255)
+    val logoUrl: Column<String> = varchar("LOGO_URL", 255)
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
-    override val primaryKey = PrimaryKey(firstColumn = makerId, name = "PK_Makers_makerId")
+    override val primaryKey = PrimaryKey(firstColumn = makerId, name = "PK_MAKERS_MAKER_ID")
 }
 
 object Assemblies : Table() {
-    val assemblyId: Column<Int> = integer("assemblyId").autoIncrement()
-    val ownerUserId: Column<String> = varchar("ownerUserId", 36)
-    val assemblyName: Column<String> = varchar("assemblyName", 100)
-    val assemblyUrl: Column<String> = varchar("assemblyUrl", 255)
-    val ownerComment: Column<String> = varchar("makerUrl", 511)
-    val referenceAssemblyId: Column<Int?> = integer("referenceAssemblyId").nullable()
-    val published: Column<Boolean> = bool("published")
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val assemblyId: Column<Int> = integer("ASSEMBLY_ID").autoIncrement()
+    val ownerUserId: Column<String> = varchar("OWNER_USER_ID", 36)
+    val assemblyName: Column<String> = varchar("ASSEMBLY_NAME", 100)
+    val assemblyUrl: Column<String> = varchar("ASSEMBLY_URL", 255)
+    val ownerComment: Column<String> = varchar("MAKER_URL", 511)
+    val referenceAssemblyId: Column<Int?> = integer("REFERENCE_ASSEMBLY_ID").nullable()
+    val published: Column<Boolean> = bool("PUBLISHED")
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
     override val primaryKey =
-        PrimaryKey(firstColumn = assemblyId, name = "PK_Assemblies_assemblyId")
+        PrimaryKey(firstColumn = assemblyId, name = "PK_ASSEMBLIES_ASSEMBLY_ID")
 }
 
 object AssemblyDetails : Table() {
-    val detailId: Column<Int> = integer("detailId").autoIncrement()
-    val ownerUserId: Column<String> = varchar("ownerUserId", 36)
-    val assemblyId: Column<Int> = integer("assemblyId")
-    val itemId: Column<Int> = integer("itemId")
-    val priceAtRegistered: Column<Int> = integer("priceAtRegistered")
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val detailId: Column<Int> = integer("DETAIL_ID").autoIncrement()
+    val ownerUserId: Column<String> = varchar("OWNER_USER_ID", 36)
+    val assemblyId: Column<Int> = integer("ASSEMBLY_ID")
+    val itemId: Column<Int> = integer("ITEM_ID")
+    val priceAtRegistered: Column<Int> = integer("PRICE_AT_REGISTERED")
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
     override val primaryKey =
-        PrimaryKey(firstColumn = detailId, name = "PK_AssemblyDetails_detailId")
+        PrimaryKey(firstColumn = detailId, name = "PK_ASSEMBLY_DETAILS_DETAIL_ID")
 }
 
 object FavoriteItems : Table() {
-    val id: Column<Int> = integer("id").autoIncrement()
-    val ownerUserId: Column<String> = varchar("ownerUserId", 36)
-    val itemId: Column<Int> = integer("itemId")
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val id: Column<Int> = integer("ID").autoIncrement()
+    val ownerUserId: Column<String> = varchar("OWNER_USER_ID", 36)
+    val itemId: Column<Int> = integer("ITEM_ID")
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
-    override val primaryKey = PrimaryKey(firstColumn = id, name = "PK_FavoriteItems_id")
+    override val primaryKey = PrimaryKey(firstColumn = id, name = "PK_FAVORITE_ITEMS_ID")
 }
 
 object FavoriteMakers : Table() {
-    val id: Column<Int> = integer("id").autoIncrement()
-    val ownerUserId: Column<String> = varchar("ownerUserId", 36)
-    val makerId: Column<Int> = integer("makerId")
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val id: Column<Int> = integer("ID").autoIncrement()
+    val ownerUserId: Column<String> = varchar("OWNER_USER_ID", 36)
+    val makerId: Column<Int> = integer("MAKER_ID")
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
-    override val primaryKey = PrimaryKey(firstColumn = id, name = "PK_FavoriteMakers_id")
+    override val primaryKey = PrimaryKey(firstColumn = id, name = "PK_FAVORITE_MAKERS_ID")
 }
 
 object FavoriteAssemblies : Table() {
-    val id: Column<Int> = integer("id").autoIncrement()
-    val ownerUserId: Column<String> = varchar("ownerUserId", 36)
-    val assemblyId: Column<Int> = integer("assemblyId")
-    val createdAt: Column<LocalDateTime> = datetime("createdAt")
-    val updatedAt: Column<LocalDateTime> = datetime("updatedAt")
+    val id: Column<Int> = integer("ID").autoIncrement()
+    val ownerUserId: Column<String> = varchar("OWNER_USER_ID", 36)
+    val assemblyId: Column<Int> = integer("ASSEMBLY_ID")
+    val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
+    val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
-    override val primaryKey = PrimaryKey(firstColumn = id, name = "PK_FavoriteAssemblies_id")
+    override val primaryKey = PrimaryKey(firstColumn = id, name = "PK_FAVORITE_ASSEMBLIES_ID")
 }

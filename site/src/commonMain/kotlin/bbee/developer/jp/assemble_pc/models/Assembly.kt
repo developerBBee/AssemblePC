@@ -16,8 +16,8 @@ data class Assembly(
 
 @Serializable
 data class AssemblyDetail(
-    val detailId: DetailId,
-    val itemId: ItemId,
+    val detailId: DetailId? = null,
+    val item: Item,
     val priceAtRegistered: Price,
 )
 

@@ -3,6 +3,7 @@ package bbee.developer.jp.assemble_pc.components.widgets
 import androidx.compose.runtime.Composable
 import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
+import bbee.developer.jp.assemble_pc.models.ItemId
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
@@ -49,7 +50,7 @@ fun PartsCard(
     item: Item,
     itemCategory: ItemCategory? = null,
     buttonType: PartsButtonType,
-    onClick: () -> Unit
+    onClick: (ItemId) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
         Box(
@@ -87,7 +88,7 @@ fun PartsCardContent(
     breakpoint: Breakpoint,
     item: Item,
     buttonType: PartsButtonType,
-    onClick: () -> Unit,
+    onClick: (ItemId) -> Unit,
 ) {
     val imageSize = if (breakpoint >= Breakpoint.MD) 104 else 64
 
@@ -151,14 +152,14 @@ fun PartsCardContent(
                         .fontSize(breakpoint.hugeSize())
                         .fontWeight(FontWeight.Bold)
                         .maxLines(1),
-                    text = item.price.toString()
+                    text = item.price.yen()
                 )
 
                 FloatingButton(
                     breakpoint = breakpoint,
                     text = buttonType.text,
                     backgroundColor = buttonType.bgColor,
-                    onClick = onClick
+                    onClick = { item.itemId?.let { onClick(it) } }
                 )
             }
         }

@@ -26,10 +26,12 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -72,7 +74,8 @@ fun initDatabase(context: InitApiContext) {
 
 class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository {
     private val database = Database.connect(
-        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;", // TODO: In memory DB for debug
+        url = "jdbc:h2:~/pcassem_db2/kakakudb", // Test db file
+//        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;", // TODO: In memory DB for debug
         driver = "org.h2.Driver",
         user = "root",
         password = "",
@@ -93,6 +96,65 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
+    override suspend fun getCurrentAssembly(uid: String): Assembly {
+        return transaction(database) {
+            context.logger.debug("getCurrentAssembly() start select")
+            Assemblies.selectAll()
+                .where { (Assemblies.ownerUserId eq uid) and (Assemblies.published eq false) }
+                .orderBy(column = Assemblies.updatedAt, order = SortOrder.DESC)
+                .limit(n = 1, offset = 0L)
+                .map { assemblyRow ->
+                    val assemblyId = assemblyRow[Assemblies.assemblyId]
+
+                    val assemblyDetails = AssemblyDetails
+                        .join(
+                            otherTable = Items,
+                            joinType = JoinType.INNER,
+                            onColumn = AssemblyDetails.itemId,
+                            otherColumn = Items.itemId,
+                        )
+                        .selectAll()
+                        .where { AssemblyDetails.assemblyId eq assemblyId }
+                        .map { row ->
+                            AssemblyDetail(
+                                detailId = DetailId(id = row[AssemblyDetails.detailId]),
+                                item = Item(
+                                    itemId = ItemId(row[Items.itemId]),
+                                    itemCategoryId = ItemCategoryId(row[Items.itemCategoryId]),
+                                    makerId = MakerId(row[Items.makerId]),
+                                    itemName = row[Items.itemName],
+                                    linkUrl = row[Items.linkUrl],
+                                    imageUrl = row[Items.imageUrl],
+                                    description = row[Items.description],
+                                    price = Price(row[Items.price]),
+                                    rank = row[Items.rank],
+                                    flag1 = row[Items.flag1],
+                                    flag2 = row[Items.flag2],
+                                    releaseDate = row[Items.releaseDate],
+                                    outdated = row[Items.outdated],
+                                ),
+                                priceAtRegistered = Price(
+                                    value = row[AssemblyDetails.priceAtRegistered]
+                                ),
+                            )
+                        }
+
+                    Assembly(
+                        assemblyId = AssemblyId(id = assemblyRow[Assemblies.assemblyId]),
+                        ownerUserId = assemblyRow[Assemblies.ownerUserId],
+                        assemblyName = assemblyRow[Assemblies.assemblyName],
+                        assemblyUrl = assemblyRow[Assemblies.assemblyUrl],
+                        ownerComment = assemblyRow[Assemblies.ownerComment],
+                        referenceAssemblyId = assemblyRow[Assemblies.referenceAssemblyId]
+                            ?.let { AssemblyId(id = it) },
+                        published = assemblyRow[Assemblies.published],
+                        assemblyDetails = assemblyDetails
+                    )
+                }
+                .first()
+        }
+    }
+
     override suspend fun addAssembly(uid: String, assembly: Assembly): Boolean {
         val now = currentDateTime
 
@@ -104,13 +166,14 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                 it[assemblyUrl] = assembly.assemblyUrl
                 it[ownerComment] = assembly.ownerComment
                 assembly.referenceAssemblyId?.also { ref -> it[referenceAssemblyId] = ref.id }
+                it[published] = assembly.published
                 it[createdAt] = now
                 it[updatedAt] = now
             }.resultedValues?.firstOrNull()?.get(Assemblies.assemblyId)?.also { assemblyId ->
                 AssemblyDetails.batchInsert(assembly.assemblyDetails) { detail ->
                     this[AssemblyDetails.ownerUserId] = uid
                     this[AssemblyDetails.assemblyId] = assemblyId
-                    this[AssemblyDetails.itemId] = detail.itemId.id
+                    this[AssemblyDetails.itemId] = detail.item.itemId!!.id
                     this[AssemblyDetails.priceAtRegistered] = detail.priceAtRegistered.value
                     this[AssemblyDetails.createdAt] = now
                     this[AssemblyDetails.updatedAt] = now
@@ -163,7 +226,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
             AssemblyDetails.insert {
                 it[ownerUserId] = uid
                 it[this.assemblyId] = assemblyId.id
-                it[itemId] = detail.itemId.id
+                it[itemId] = detail.item.itemId!!.id
                 it[priceAtRegistered] = detail.priceAtRegistered.value
                 it[createdAt] = now
                 it[updatedAt] = now
@@ -182,7 +245,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         return transaction(database) {
             context.logger.debug("updateAssemblyDetail() start update")
             AssemblyDetails.update(where = { AssemblyDetails.detailId eq detailId.id }) {
-                it[itemId] = detail.itemId.id
+                it[itemId] = detail.item.itemId!!.id
                 it[priceAtRegistered] = detail.priceAtRegistered.value
                 it[updatedAt] = now
             }.let { result ->
@@ -233,12 +296,20 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
 
     override suspend fun getAssemblies(skip: Long): List<Assembly> {
         return transaction(database) {
-            Assemblies.join(
-                otherTable = AssemblyDetails,
-                joinType = JoinType.INNER,
-                onColumn = Assemblies.assemblyId,
-                otherColumn = AssemblyDetails.assemblyId
-            ).selectAll()
+            Assemblies
+                .join(
+                    otherTable = AssemblyDetails,
+                    joinType = JoinType.INNER,
+                    onColumn = Assemblies.assemblyId,
+                    otherColumn = AssemblyDetails.assemblyId
+                )
+                .join(
+                    otherTable = Items,
+                    joinType = JoinType.INNER,
+                    onColumn = AssemblyDetails.itemId,
+                    otherColumn = Items.itemId,
+                )
+                .selectAll()
                 .where { Assemblies.published eq true }
                 .orderBy(Assemblies.updatedAt)
                 .limit(n = 20, offset = skip)
@@ -257,7 +328,21 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                         assemblyDetails = details.map {
                             AssemblyDetail(
                                 detailId = DetailId(id = it[AssemblyDetails.detailId]),
-                                itemId = ItemId(id = it[AssemblyDetails.itemId]),
+                                item = Item(
+                                    itemId = ItemId(it[Items.itemId]),
+                                    itemCategoryId = ItemCategoryId(it[Items.itemCategoryId]),
+                                    makerId = MakerId(it[Items.makerId]),
+                                    itemName = it[Items.itemName],
+                                    linkUrl = it[Items.linkUrl],
+                                    imageUrl = it[Items.imageUrl],
+                                    description = it[Items.description],
+                                    price = Price(it[Items.price]),
+                                    rank = it[Items.rank],
+                                    flag1 = it[Items.flag1],
+                                    flag2 = it[Items.flag2],
+                                    releaseDate = it[Items.releaseDate],
+                                    outdated = it[Items.outdated],
+                                ),
                                 priceAtRegistered = Price(value = it[AssemblyDetails.priceAtRegistered]),
                             )
                         }

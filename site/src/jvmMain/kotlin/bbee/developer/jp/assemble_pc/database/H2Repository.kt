@@ -9,6 +9,7 @@ import bbee.developer.jp.assemble_pc.models.ItemCategory
 
 interface H2Repository {
     suspend fun addUserAnonymous(uid: String): Boolean
+    suspend fun getCurrentAssembly(uid: String): Assembly
     suspend fun addAssembly(uid: String, assembly: Assembly): Boolean
     suspend fun updateAssembly(assembly: Assembly): Boolean
     suspend fun deleteAssembly(assemblyId: AssemblyId): Boolean

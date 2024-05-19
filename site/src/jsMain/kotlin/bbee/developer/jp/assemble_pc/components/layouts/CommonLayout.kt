@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import bbee.developer.jp.assemble_pc.components.sections.Advertisement
 import bbee.developer.jp.assemble_pc.components.sections.Header
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
+import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -26,7 +27,9 @@ fun CommonLayout(
         ) {
             if (breakpoint >= Breakpoint.XL) Advertisement(modifier = Modifier.margin(right = 16.px))
 
-            content()
+            Box(modifier = Modifier.fillMaxSize()) {
+                content()
+            }
 
             if (breakpoint >= Breakpoint.LG) Advertisement(modifier = Modifier.margin(left = 16.px))
         }

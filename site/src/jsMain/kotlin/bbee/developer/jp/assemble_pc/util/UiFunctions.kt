@@ -6,11 +6,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import bbee.developer.jp.assemble_pc.firebase.auth
+import bbee.developer.jp.assemble_pc.models.Theme
+import com.varabyte.kobweb.compose.css.Cursor
+import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.Overflow
 import com.varabyte.kobweb.compose.css.TextOverflow
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
+import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
 import com.varabyte.kobweb.compose.ui.modifiers.border
+import com.varabyte.kobweb.compose.ui.modifiers.color
+import com.varabyte.kobweb.compose.ui.modifiers.cursor
+import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
+import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.modifiers.outline
 import com.varabyte.kobweb.compose.ui.modifiers.overflow
 import com.varabyte.kobweb.compose.ui.modifiers.textOverflow
@@ -18,6 +26,7 @@ import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.web.css.CSSColorValue
 import org.jetbrains.compose.web.css.CSSSizeValue
 import org.jetbrains.compose.web.css.CSSUnit
 import org.jetbrains.compose.web.css.LineStyle
@@ -62,6 +71,22 @@ fun Modifier.maxLines(maxLines: Int): Modifier = this
         property("line-clamp", "$maxLines")
         property("-webkit-box-orient", "vertical")
     }
+
+fun Modifier.enabledButton(
+    enabled: Boolean,
+    backgroundColor: CSSColorValue,
+    onClick: () -> Unit
+): Modifier = this
+    .cursor(if (enabled) Cursor.Pointer else Cursor.Auto)
+    .backgroundColor(if (enabled) backgroundColor else Theme.LIGHT_GRAY.rgb)
+    .onClick { if (enabled) { onClick() } }
+
+fun Modifier.enabledButtonText(
+    enabled: Boolean,
+    textColor: CSSColorValue,
+): Modifier = this
+    .color(if (enabled) textColor else Theme.LIGHT_GRAY.rgb)
+    .fontWeight(if (enabled) FontWeight.Bold else FontWeight.Normal)
 
 fun Breakpoint.smallSize(): CSSSizeValue<CSSUnit.px> = when (this) {
     Breakpoint.ZERO -> 9.px
