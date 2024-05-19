@@ -2,6 +2,7 @@ package bbee.developer.jp.assemble_pc.components.layouts
 
 import androidx.compose.runtime.Composable
 import bbee.developer.jp.assemble_pc.models.BuildingTabMenu
+import bbee.developer.jp.assemble_pc.models.Price
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.hugeSize
 import bbee.developer.jp.assemble_pc.util.largeSize
@@ -21,25 +22,29 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.height
 import com.varabyte.kobweb.compose.ui.modifiers.margin
+import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.width
+import com.varabyte.kobweb.silk.components.icons.fa.FaFile
 import com.varabyte.kobweb.silk.components.icons.fa.FaPenToSquare
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.components.text.SpanText
 import org.jetbrains.compose.web.css.CSSSizeValue
 import org.jetbrains.compose.web.css.CSSUnit
-import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 
 @Composable
 fun BuildingNavLayout(
     breakpoint: Breakpoint,
+    assemblyName: String,
+    totalAmount: Price,
+    onAssemblyNameClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize(95.percent)
-            .margin(8.px),
+            .fillMaxSize()
+            .padding(16.px),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CreateNew(fontSize = breakpoint.largeSize())
@@ -52,8 +57,13 @@ fun BuildingNavLayout(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AssemblyName(fontSize = breakpoint.largeSize())
-            TotalAmount(breakpoint = breakpoint)
+            AssemblyName(
+                assemblyName = assemblyName,
+                fontSize = breakpoint.largeSize(),
+                onClick = onAssemblyNameClick
+            )
+
+            TotalAmount(breakpoint = breakpoint, totalAmount = totalAmount)
         }
 
         TabMenuLayout(
@@ -69,11 +79,12 @@ fun BuildingNavLayout(
 fun CreateNew(fontSize: CSSSizeValue<CSSUnit.px>) {
     Row(
         modifier = Modifier
+            .height(32.px)
             .margin(8.px)
             .cursor(Cursor.Pointer),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        FaPenToSquare(
+        FaFile(
             modifier = Modifier
                 .margin(right = 8.px)
                 .cursor(Cursor.Pointer)
@@ -90,11 +101,16 @@ fun CreateNew(fontSize: CSSSizeValue<CSSUnit.px>) {
 }
 
 @Composable
-fun AssemblyName(fontSize: CSSSizeValue<CSSUnit.px>) {
+fun AssemblyName(
+    assemblyName: String,
+    fontSize: CSSSizeValue<CSSUnit.px>,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .margin(8.px)
-            .cursor(Cursor.Pointer),
+            .cursor(Cursor.Pointer)
+            .onClick { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         FaPenToSquare(
@@ -108,13 +124,16 @@ fun AssemblyName(fontSize: CSSSizeValue<CSSUnit.px>) {
                 .fontFamily(Const.FONT_FAMILY)
                 .fontWeight(FontWeight.Bold)
                 .maxLines(2),
-            text = "コスパ最強コスパ最強コスパ最強コスパ最強",
+            text = assemblyName.ifEmpty { "(NO NAME)" },
         )
     }
 }
 
 @Composable
-fun TotalAmount(breakpoint: Breakpoint) {
+fun TotalAmount(
+    breakpoint: Breakpoint,
+    totalAmount: Price,
+) {
     if (breakpoint >= Breakpoint.SM) {
         Row(
             modifier = Modifier
@@ -124,6 +143,7 @@ fun TotalAmount(breakpoint: Breakpoint) {
             horizontalArrangement = Arrangement.End
         ) {
             TotalAmountContents(
+                totalAmount,
                 titleFontSize = breakpoint.hugeSize(),
                 valueFontSize = breakpoint.hugeSize(),
             )
@@ -137,6 +157,7 @@ fun TotalAmount(breakpoint: Breakpoint) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TotalAmountContents(
+                totalAmount,
                 titleFontSize = breakpoint.largeSize(),
                 valueFontSize = breakpoint.hugeSize(),
             )
@@ -146,6 +167,7 @@ fun TotalAmount(breakpoint: Breakpoint) {
 
 @Composable
 fun TotalAmountContents(
+    totalAmount: Price,
     titleFontSize: CSSSizeValue<CSSUnit.px>,
     valueFontSize: CSSSizeValue<CSSUnit.px>
 ) {
@@ -165,6 +187,6 @@ fun TotalAmountContents(
             .fontFamily(Const.FONT_FAMILY)
             .fontWeight(FontWeight.Bold)
             .maxLines(1),
-        text = "¥ 1,234,567",
+        text = totalAmount.yen(),
     )
 }

@@ -26,5 +26,10 @@ actual enum class ItemCategory(val displayName: String, val route: String) {
 
     companion object {
         fun from(id: ItemCategoryId) = entries.first { it.ordinal == id.id }
+        fun fromSlug(slug: String?) = if (slug.isNullOrEmpty()) {
+            null
+        } else {
+            entries.firstOrNull { it.route.endsWith(slug) }
+        }
     }
 }

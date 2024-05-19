@@ -75,7 +75,7 @@ fun AssemblyCardContent(
             .align(Alignment.CenterHorizontally)
         )
 
-        AssemblyContents(breakpoint = breakpoint)
+        AssemblyMain(breakpoint = breakpoint)
 
         HorizontalDivider(modifier = Modifier
             .width(95.percent)
@@ -119,7 +119,7 @@ fun AssemblyHeader(
 }
 
 @Composable
-fun AssemblyContents(
+fun AssemblyMain(
     breakpoint: Breakpoint,
     onShowMore: () -> Unit = {}
 ) {

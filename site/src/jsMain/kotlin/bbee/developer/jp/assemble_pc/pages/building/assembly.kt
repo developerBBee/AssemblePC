@@ -1,22 +1,31 @@
 package bbee.developer.jp.assemble_pc.pages.building
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import bbee.developer.jp.assemble_pc.components.layouts.BuildingNavLayout
 import bbee.developer.jp.assemble_pc.components.layouts.CommonLayout
+import bbee.developer.jp.assemble_pc.components.widgets.EditPopup
 import bbee.developer.jp.assemble_pc.components.widgets.FloatingButton
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
-import bbee.developer.jp.assemble_pc.models.Item
+import bbee.developer.jp.assemble_pc.models.Assembly
+import bbee.developer.jp.assemble_pc.models.AssemblyDetail
+import bbee.developer.jp.assemble_pc.models.AssemblyForPost
+import bbee.developer.jp.assemble_pc.models.DetailId
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.IsUserLoggedIn
+import bbee.developer.jp.assemble_pc.util.deleteAssemblyDetail
+import bbee.developer.jp.assemble_pc.util.getCurrentAssembly
 import bbee.developer.jp.assemble_pc.util.hugeSize
+import bbee.developer.jp.assemble_pc.util.totalAmount
+import bbee.developer.jp.assemble_pc.util.updateAssembly
 import com.varabyte.kobweb.compose.css.PointerEvents
 import com.varabyte.kobweb.compose.css.Resize
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -39,6 +48,7 @@ import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.theme.breakpoint.rememberBreakpoint
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
@@ -48,26 +58,102 @@ import org.jetbrains.compose.web.dom.TextArea
 @Page
 @Composable
 fun AssemblyPage() {
+    val scope = rememberCoroutineScope()
     val breakpoint = rememberBreakpoint()
-    val items = remember { mutableStateListOf<Item>() }
+
+    var currentAssembly: Assembly? by remember { mutableStateOf(null) }
+
+    var showAssemblyNamePopup by remember { mutableStateOf(false) }
 
     IsUserLoggedIn {
         CommonLayout(breakpoint = breakpoint) {
-            BuildingNavLayout(breakpoint = breakpoint) {
-                AssemblyContents(breakpoint = breakpoint, items = items)
+            LaunchedEffect(Unit) {
+                getCurrentAssembly()?.also {
+                    currentAssembly = it
+                }
+            }
+
+            currentAssembly?.let { assembly ->
+                BuildingNavLayout(
+                    breakpoint = breakpoint,
+                    assemblyName = assembly.assemblyName,
+                    totalAmount = assembly.totalAmount(),
+                    onAssemblyNameClick = { showAssemblyNamePopup = true }
+                ) {
+                    assembly.assemblyDetails.let { details ->
+                        AssemblyContents(
+                            breakpoint = breakpoint,
+                            details = details,
+                            comment = assembly.ownerComment,
+                            onCommentUpdateClick = { newComment ->
+                                scope.launch {
+                                    val newAssembly = assembly.copy(ownerComment = newComment)
+                                    val isSuccess = updateAssembly(newAssembly)
+                                    if (isSuccess) {
+                                        currentAssembly = newAssembly
+                                    }
+                                }
+                            },
+                            onDeleteButtonClick = { detailId ->
+                                // Delete button clicked
+                                assembly.assemblyDetails.find { it.detailId == detailId }
+                                    ?.let { assemblyDetail ->
+                                        scope.launch {
+                                            val postAssembly = AssemblyForPost(
+                                                assemblyId = assembly.assemblyId,
+                                                ownerUserId = assembly.ownerUserId,
+                                                assemblyDetail = assemblyDetail
+                                            )
+                                            val isSuccess = deleteAssemblyDetail(postAssembly)
+                                            if (isSuccess) {
+                                                currentAssembly = assembly.copy(
+                                                    assemblyDetails = assembly.assemblyDetails
+                                                        .filter { it.detailId != detailId }
+                                                )
+                                            }
+                                        }
+                                    }
+                            }
+                        )
+                    }
+                }
             }
         }
 
         StickyActionBar(breakpoint = breakpoint)
+
+        if (showAssemblyNamePopup) {
+            currentAssembly?.let { assembly ->
+                EditPopup(
+                    breakpoint = breakpoint,
+                    title = "構成名の更新",
+                    initText = assembly.assemblyName,
+                    onDialogDismiss = { showAssemblyNamePopup = false },
+                    onUpdateClick = { newName ->
+                        scope.launch {
+                            val newAssembly = assembly.copy(assemblyName = newName)
+                            val isSuccess = updateAssembly(newAssembly)
+                            if (isSuccess) {
+                                currentAssembly = newAssembly
+                            }
+                            showAssemblyNamePopup = false
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun AssemblyContents(
     breakpoint: Breakpoint,
-    items: List<Item>,
+    details: List<AssemblyDetail>,
+    comment: String,
+    onCommentUpdateClick: (String) -> Unit,
+    onDeleteButtonClick: (DetailId) -> Unit,
 ) {
-    var comment: String by remember { mutableStateOf("") }
+    var commentText: String by remember { mutableStateOf(comment) }
 
     Column(
         modifier = Modifier
@@ -76,7 +162,7 @@ fun AssemblyContents(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         TextArea(
-            value = comment,
+            value = commentText,
             attrs = Modifier
                 .fillMaxWidth(90.percent)
                 .height(120.px)
@@ -88,22 +174,31 @@ fun AssemblyContents(
                 .resize(Resize.None)
                 .toAttrs {
                     attr("placeholder", "構成に関するコメント")
-                    onInput { comment = it.value }
+                    onInput { commentText = it.value }
                 }
         )
+        FloatingButton(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+            breakpoint = breakpoint,
+            text = "更新",
+            enabled = commentText != comment,
+            onClick = { onCommentUpdateClick(commentText) }
+        )
 
-        items.forEach { item ->
+        details
+            .sortedBy { it.item.itemCategoryId.id }
+            .forEach { detail ->
             PartsCard(
                 breakpoint = breakpoint,
-                item = item,
-                itemCategory = ItemCategory.from(id = item.itemCategoryId),
+                item = detail.item,
+                itemCategory = ItemCategory.from(id = detail.item.itemCategoryId),
                 buttonType = PartsButtonType.DELETION,
-                onClick = {}
+                onClick = { onDeleteButtonClick(requireNotNull(detail.detailId)) }
             )
         }
     }
 }
-
 
 @Composable
 fun StickyActionBar(breakpoint: Breakpoint) {
@@ -125,10 +220,11 @@ fun StickyActionBar(breakpoint: Breakpoint) {
         ) {
             FloatingButton(
                 breakpoint = breakpoint,
-                text = "投稿",
+                text = "公開",
                 color = Colors.Black,
-                backgroundColor = Theme.YELLOW.rgb
-            ) {}
+                backgroundColor = Theme.YELLOW.rgb,
+                onClick = { /* TODO publish */ }
+            )
         }
     }
 }
