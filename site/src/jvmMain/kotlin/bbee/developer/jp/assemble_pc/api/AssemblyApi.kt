@@ -8,6 +8,8 @@ import bbee.developer.jp.assemble_pc.database.H2DB
 import bbee.developer.jp.assemble_pc.models.Assembly
 import bbee.developer.jp.assemble_pc.models.AssemblyForPost
 import bbee.developer.jp.assemble_pc.models.AssemblyId
+import bbee.developer.jp.assemble_pc.util.currentDateTime
+import bbee.developer.jp.assemble_pc.util.toDateTimeString
 import com.varabyte.kobweb.api.Api
 import com.varabyte.kobweb.api.ApiContext
 import com.varabyte.kobweb.api.data.getValue
@@ -36,9 +38,11 @@ suspend fun createAssembly(context: ApiContext) {
                         ownerUserId = uid,
                         assemblyName = assemblyName,
                         assemblyUrl = UUID.randomUUID().toString(),
+                        ownerName = null,
                         ownerComment = "",
                         referenceAssemblyId = refId?.toIntOrNull()?.let { AssemblyId(it) } ,
                         published = false,
+                        publishedDate = currentDateTime.toDateTimeString(),
                         assemblyDetails = emptyList()
                     ).let { assembly ->
                         data.getValue<H2DB>().addAssembly(uid, assembly).also { isSuccess ->
@@ -169,4 +173,17 @@ suspend fun deleteAssemblyDetails(context: ApiContext) {
             }
         }
     }.onFailureCommonResponse(context = context, functionName = "deleteAssemblyDetails")
+}
+
+@Api(routeOverride = "get_my_published_assemblies")
+suspend fun getMyPublishedAssemblies(context: ApiContext) {
+    context.runCatching {
+        getUid().also { uid ->
+            req.params.getOrDefault("skip", "0").toLongOrNull().also { skip ->
+                data.getValue<H2DB>()
+                    .getAssemblies(uid = uid, skip = skip ?: 0L, own = true)
+                    .also { result -> res.setBody(result) }
+            }
+        }
+    }.onFailureCommonResponse(context = context, functionName = "getMyPublishedAssemblies")
 }

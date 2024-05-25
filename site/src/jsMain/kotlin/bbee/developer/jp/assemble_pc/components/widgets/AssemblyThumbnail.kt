@@ -1,9 +1,9 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
+import bbee.developer.jp.assemble_pc.models.AssemblyDetail
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.util.Const
-import bbee.developer.jp.assemble_pc.util.Res
 import bbee.developer.jp.assemble_pc.util.largeSize
 import bbee.developer.jp.assemble_pc.util.maxLines
 import bbee.developer.jp.assemble_pc.util.smallSize
@@ -31,19 +31,24 @@ import org.jetbrains.compose.web.css.px
 
 @Composable
 fun AssemblyThumbnail(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    detail: AssemblyDetail,
 ) {
-    val imageSize = if (breakpoint >= Breakpoint.MD) 104 else 80
+    val imageSize = when (breakpoint) {
+        Breakpoint.XL -> 104
+        Breakpoint.MD, Breakpoint.SM -> 96
+        Breakpoint.LG, Breakpoint.ZERO -> 80
+    }
 
     Row(modifier = Modifier.padding(4.px)) {
         Box(modifier = Modifier.minSize(imageSize.px).color(Colors.Gray)) {
             Image(
                 modifier = Modifier.size(imageSize.px).objectFit(ObjectFit.Contain),
-                src = Res.Image.ITEM
+                src = detail.item.imageUrl
             )
 
             CategoryTag(
-                itemCategory = ItemCategory.CASE,
+                itemCategory = ItemCategory.from(detail.item.itemCategoryId),
                 fontSize = breakpoint.smallSize(),
             )
         }
@@ -56,7 +61,7 @@ fun AssemblyThumbnail(
                     .fontFamily(Const.FONT_FAMILY)
                     .fontSize(breakpoint.largeSize())
                     .maxLines(2),
-                text = "ABCD-12345-67890ABCD-12345-67890ABCD-12345-67890ABCD-12345-67890ABCD-12345-67890ABCD-12345-67890"
+                text = detail.item.itemName
             )
 
             Column(
@@ -69,7 +74,7 @@ fun AssemblyThumbnail(
                         .fontFamily(Const.FONT_FAMILY)
                         .fontSize(breakpoint.largeSize())
                         .fontWeight(FontWeight.Bold),
-                    text = "¥10,000"
+                    text = detail.item.price.yen()
                 )
 
                 SpanText(
@@ -77,7 +82,7 @@ fun AssemblyThumbnail(
                         .color(Colors.Black)
                         .fontFamily(Const.FONT_FAMILY)
                         .fontSize(breakpoint.smallSize()),
-                    text = "¥10,000（作成時）"
+                    text = "${detail.priceAtRegistered.yen()}（作成時）"
                 )
             }
         }

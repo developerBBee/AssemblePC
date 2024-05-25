@@ -75,7 +75,7 @@ fun PartsPage() {
                                             addAssemblyDetail(postAssembly)
                                         }
                                         ?.also { newAssembly ->
-                                            println(newAssembly)
+                                            println("[SUCCESS]addAssemblyDetail $newAssembly")
                                             currentAssembly = newAssembly
                                         }
                                 }

@@ -3,7 +3,6 @@ package bbee.developer.jp.assemble_pc.database
 import bbee.developer.jp.assemble_pc.database.entity.Assemblies
 import bbee.developer.jp.assemble_pc.database.entity.AssemblyDetails
 import bbee.developer.jp.assemble_pc.database.entity.Items
-import bbee.developer.jp.assemble_pc.database.entity.Samples
 import bbee.developer.jp.assemble_pc.database.entity.TABLES
 import bbee.developer.jp.assemble_pc.database.entity.Users
 import bbee.developer.jp.assemble_pc.models.Assembly
@@ -19,6 +18,7 @@ import bbee.developer.jp.assemble_pc.models.Price
 import bbee.developer.jp.assemble_pc.task.data.repository.LocalRepository
 import bbee.developer.jp.assemble_pc.util.currentDateTime
 import bbee.developer.jp.assemble_pc.util.localRepository
+import bbee.developer.jp.assemble_pc.util.toDateTimeString
 import com.varabyte.kobweb.api.data.add
 import com.varabyte.kobweb.api.init.InitApi
 import com.varabyte.kobweb.api.init.InitApiContext
@@ -38,7 +38,6 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import java.util.UUID
 
 @InitApi
 fun initDatabase(context: InitApiContext) {
@@ -53,22 +52,6 @@ fun initDatabase(context: InitApiContext) {
 
         // Create table if not exists
         SchemaUtils.create(*TABLES)
-
-        // Insert sample data
-        val testUuid = UUID.randomUUID().toString()
-        Samples.insert {
-            it[uuid] = testUuid
-            it[name] = "Test User"
-        }
-
-        // Output SELECT result to log
-        Samples
-            .select(Samples.uuid, Samples.name)
-            .where { Samples.uuid eq testUuid }
-            .forEach {
-                context.logger.debug("Hello ${it[Samples.name]}")
-                context.logger.debug("Your UUID = ${it[Samples.uuid]}")
-            }
     }
 }
 
@@ -99,7 +82,14 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
     override suspend fun getCurrentAssembly(uid: String): Assembly {
         return transaction(database) {
             context.logger.debug("getCurrentAssembly() start select")
-            Assemblies.selectAll()
+            Assemblies
+                .join(
+                    otherTable = Users,
+                    joinType = JoinType.INNER,
+                    onColumn = Assemblies.ownerUserId,
+                    otherColumn = Users.userId,
+                )
+                .selectAll()
                 .where { (Assemblies.ownerUserId eq uid) and (Assemblies.published eq false) }
                 .orderBy(column = Assemblies.updatedAt, order = SortOrder.DESC)
                 .limit(n = 1, offset = 0L)
@@ -144,10 +134,12 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                         ownerUserId = assemblyRow[Assemblies.ownerUserId],
                         assemblyName = assemblyRow[Assemblies.assemblyName],
                         assemblyUrl = assemblyRow[Assemblies.assemblyUrl],
+                        ownerName = assemblyRow[Users.userName],
                         ownerComment = assemblyRow[Assemblies.ownerComment],
                         referenceAssemblyId = assemblyRow[Assemblies.referenceAssemblyId]
                             ?.let { AssemblyId(id = it) },
                         published = assemblyRow[Assemblies.published],
+                        publishedDate = assemblyRow[Assemblies.updatedAt].toDateTimeString(),
                         assemblyDetails = assemblyDetails
                     )
                 }
@@ -195,6 +187,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                 it[assemblyUrl] = assembly.assemblyUrl
                 it[ownerComment] = assembly.ownerComment
                 assembly.referenceAssemblyId?.also { ref -> it[referenceAssemblyId] = ref.id }
+                it[published] = assembly.published
                 it[updatedAt] = now
             }.let { result ->
                 context.logger.debug("updateAssembly() finish update")
@@ -294,9 +287,15 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
-    override suspend fun getAssemblies(skip: Long): List<Assembly> {
+    override suspend fun getAssemblies(uid: String, skip: Long, own: Boolean): List<Assembly> {
         return transaction(database) {
             Assemblies
+                .join(
+                    otherTable = Users,
+                    joinType = JoinType.INNER,
+                    onColumn = Assemblies.ownerUserId,
+                    otherColumn = Users.userId,
+                )
                 .join(
                     otherTable = AssemblyDetails,
                     joinType = JoinType.INNER,
@@ -310,10 +309,17 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                     otherColumn = Items.itemId,
                 )
                 .selectAll()
-                .where { Assemblies.published eq true }
+                .where {
+                    Assemblies.published eq true and
+                    if (own) {
+                        Assemblies.ownerUserId eq uid
+                    } else {
+                        Assemblies.ownerUserId neq uid
+                    }
+                }
                 .orderBy(Assemblies.updatedAt)
                 .limit(n = 20, offset = skip)
-                .groupBy { Assemblies.assemblyId }
+                .groupBy { it[Assemblies.assemblyId] }
                 .map { (_, details) ->
                     val assemblyResult = details.first()
                     Assembly(
@@ -321,10 +327,12 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                         ownerUserId = assemblyResult[Assemblies.ownerUserId],
                         assemblyName = assemblyResult[Assemblies.assemblyName],
                         assemblyUrl = assemblyResult[Assemblies.assemblyUrl],
+                        ownerName = assemblyResult[Users.userName],
                         ownerComment = assemblyResult[Assemblies.ownerComment],
                         referenceAssemblyId = assemblyResult[Assemblies.referenceAssemblyId]
                             ?.let { AssemblyId(id = it) },
                         published = assemblyResult[Assemblies.published],
+                        publishedDate = assemblyResult[Assemblies.updatedAt].toDateTimeString(),
                         assemblyDetails = details.map {
                             AssemblyDetail(
                                 detailId = DetailId(id = it[AssemblyDetails.detailId]),

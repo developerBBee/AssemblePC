@@ -17,5 +17,5 @@ interface H2Repository {
     suspend fun updateAssemblyDetail(detailId: DetailId, detail: AssemblyDetail): Boolean
     suspend fun deleteAssemblyDetails(detailIds: List<DetailId>): Boolean
     suspend fun getItems(category: ItemCategory, skip: Long): List<Item>
-    suspend fun getAssemblies(skip: Long): List<Assembly>
+    suspend fun getAssemblies(uid: String, skip: Long, own: Boolean): List<Assembly>
 }

@@ -8,9 +8,11 @@ data class Assembly(
     val ownerUserId: String,
     val assemblyName: String,
     val assemblyUrl: String,
+    val ownerName: String?,
     val ownerComment: String,
     val referenceAssemblyId: AssemblyId?,
     val published: Boolean,
+    val publishedDate: String,
     val assemblyDetails: List<AssemblyDetail>,
 )
 

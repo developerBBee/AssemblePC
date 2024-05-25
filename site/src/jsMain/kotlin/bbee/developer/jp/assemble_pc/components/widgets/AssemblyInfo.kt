@@ -1,11 +1,11 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
+import bbee.developer.jp.assemble_pc.models.Assembly
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.hugeSize
 import bbee.developer.jp.assemble_pc.util.mediumSize
-import bbee.developer.jp.assemble_pc.util.smallSize
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
 import com.varabyte.kobweb.compose.foundation.layout.Column
@@ -30,7 +30,8 @@ import org.jetbrains.compose.web.css.px
 @Composable
 fun AssemblyInfo(
     modifier: Modifier = Modifier,
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    assembly: Assembly
 ) {
     Column(
         modifier = modifier
@@ -42,19 +43,27 @@ fun AssemblyInfo(
     ) {
         SpanText(
             modifier = Modifier
-                .margin(topBottom = 2.px)
+                .margin(topBottom = 4.px)
                 .color(Colors.Black)
                 .fontFamily(Const.FONT_FAMILY)
+                .fontWeight(FontWeight.SemiBold)
                 .fontSize(breakpoint.mediumSize()),
-            text = "2024/01/31"
+            text = assembly.publishedDate
         )
 
+        Column(modifier = Modifier.margin(topBottom = 4.px)) {
+            val totalPriceAtNow = assembly.assemblyDetails
+                .map { it.item.price }
+                .reduce { acc, price -> acc + price }
+            val totalPriceAtRegistration = assembly.assemblyDetails
+                .map { it.priceAtRegistered }
+                .reduce { acc, price -> acc + price }
 
-        Column(modifier = Modifier.margin(topBottom = 2.px)) {
             SpanText(
                 modifier = Modifier
                     .color(Colors.Black)
                     .fontFamily(Const.FONT_FAMILY)
+                    .fontWeight(FontWeight.SemiBold)
                     .fontSize(breakpoint.mediumSize()),
                 text = "合計金額："
             )
@@ -67,11 +76,14 @@ fun AssemblyInfo(
                         .fontFamily(Const.FONT_FAMILY)
                         .fontSize(breakpoint.hugeSize())
                         .fontWeight(FontWeight.Bold),
-                    text = "¥ 123,456"
+                    text = totalPriceAtNow.yen()
                 )
 
-                FaTurnUp(modifier = Modifier.color(Theme.GREEN.rgb))
-                FaTurnDown(modifier = Modifier.color(Theme.RED.rgb))
+                if (totalPriceAtNow > totalPriceAtRegistration) {
+                    FaTurnUp(modifier = Modifier.color(Theme.GREEN.rgb))
+                } else if (totalPriceAtNow < totalPriceAtRegistration) {
+                    FaTurnDown(modifier = Modifier.color(Theme.RED.rgb))
+                }
             }
 
             SpanText(
@@ -79,8 +91,9 @@ fun AssemblyInfo(
                     .margin(leftRight = 4.px)
                     .color(Colors.Black)
                     .fontFamily(Const.FONT_FAMILY)
+                    .fontWeight(FontWeight.SemiBold)
                     .fontSize(breakpoint.mediumSize()),
-                text = "¥ 123,456（作成時）"
+                text = "${totalPriceAtRegistration.yen()}（作成時）"
             )
         }
 
@@ -93,6 +106,7 @@ fun AssemblyInfo(
                 modifier = Modifier
                     .color(Colors.Black)
                     .fontFamily(Const.FONT_FAMILY)
+                    .fontWeight(FontWeight.SemiBold)
                     .fontSize(breakpoint.mediumSize()),
                 text = "作成者コメント："
             )
@@ -101,8 +115,8 @@ fun AssemblyInfo(
                     .padding(leftRight = 8.px)
                     .color(Colors.Black)
                     .fontFamily(Const.FONT_FAMILY)
-                    .fontSize(breakpoint.smallSize()),
-                text = "この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。この構成はコスパが最高です。"
+                    .fontSize(breakpoint.mediumSize()),
+                text = assembly.ownerComment
             )
         }
     }

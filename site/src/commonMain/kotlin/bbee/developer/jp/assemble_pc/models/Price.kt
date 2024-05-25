@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Price(
     val value: Int,
-) {
+) : Comparable<Price> {
     operator fun plus(other: Price): Price {
         return Price(value + other.value)
     }
@@ -26,19 +26,23 @@ data class Price(
         return Price(value * other)
     }
 
+    override operator fun compareTo(other: Price): Int {
+        return value.compareTo(other.value)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other is Price) {
-            return other.value == this.value
+            return value == other.value
         }
         return false
     }
 
-    fun yen(): String {
-        return "¥ $value"
-    }
-
     override fun hashCode(): Int {
         return value
+    }
+
+    fun yen(): String {
+        return "¥ $value"
     }
 
     companion object {
