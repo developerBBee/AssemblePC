@@ -31,6 +31,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.flexWrap
 import com.varabyte.kobweb.compose.ui.modifiers.fontFamily
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
+import com.varabyte.kobweb.compose.ui.modifiers.height
 import com.varabyte.kobweb.compose.ui.modifiers.objectFit
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.size
@@ -49,6 +50,7 @@ fun PartsCard(
     breakpoint: Breakpoint,
     item: Item,
     itemCategory: ItemCategory? = null,
+    hasItemCount: Int = 0,
     buttonType: PartsButtonType,
     onClick: (ItemId) -> Unit
 ) {
@@ -69,6 +71,7 @@ fun PartsCard(
             PartsCardContent(
                 breakpoint = breakpoint,
                 item = item,
+                hasItemCount = hasItemCount,
                 buttonType = buttonType,
                 onClick = onClick
             )
@@ -87,6 +90,7 @@ fun PartsCard(
 fun PartsCardContent(
     breakpoint: Breakpoint,
     item: Item,
+    hasItemCount: Int,
     buttonType: PartsButtonType,
     onClick: (ItemId) -> Unit,
 ) {
@@ -144,6 +148,24 @@ fun PartsCardContent(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.Center
             ) {
+                Box(
+                    modifier = Modifier.height(32.px),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (hasItemCount > 0) {
+                        SpanText(
+                            modifier = Modifier
+                                .padding(topBottom = 8.px)
+                                .color(Theme.DARK_GRAY.rgb)
+                                .fontFamily(Const.FONT_FAMILY)
+                                .fontSize(breakpoint.mediumSize())
+                                .fontWeight(FontWeight.Bold)
+                                .maxLines(1),
+                            text = "${hasItemCount} 個登録済"
+                        )
+                    }
+                }
+
                 SpanText(
                     modifier = Modifier
                         .padding(topBottom = 8.px)
