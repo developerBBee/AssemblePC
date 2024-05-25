@@ -14,6 +14,7 @@ import bbee.developer.jp.assemble_pc.components.widgets.EditPopup
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
 import bbee.developer.jp.assemble_pc.components.widgets.SearchBar
 import bbee.developer.jp.assemble_pc.models.Assembly
+import bbee.developer.jp.assemble_pc.models.AssemblyDetail
 import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.ItemId
@@ -117,6 +118,7 @@ fun BuildingPage() {
 fun BuildingContents(
     breakpoint: Breakpoint,
     items: List<Item>,
+    details: List<AssemblyDetail> = emptyList(),
     onClick: (ItemId) -> Unit = {}
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -135,7 +137,12 @@ fun BuildingContents(
                 .fillMaxWidth()
                 .padding(if (breakpoint >= Breakpoint.MD) 16.px else 8.px)
         ) {
-            PartsListLayout(breakpoint = breakpoint, items = items, onClick = onClick)
+            PartsListLayout(
+                breakpoint = breakpoint,
+                items = items,
+                details = details,
+                onClick = onClick
+            )
         }
     }
 }
@@ -177,6 +184,7 @@ fun PartsMenu(
 fun PartsListLayout(
     breakpoint: Breakpoint,
     items: List<Item>? = null,
+    details: List<AssemblyDetail>,
     onClick: (ItemId) -> Unit,
 ) {
     Column(
@@ -206,10 +214,13 @@ fun PartsListLayout(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 items?.forEach { item ->
+                    val hasItemCount = details.count { it.item.itemId == item.itemId }
                     PartsCard(
                         breakpoint = breakpoint,
                         item = item,
-                        buttonType = PartsButtonType.REGISTRATION,
+                        hasItemCount = hasItemCount,
+                        buttonType = if (hasItemCount == 0) PartsButtonType.REGISTRATION
+                        else PartsButtonType.ADDITION,
                         onClick = onClick
                     )
                 }

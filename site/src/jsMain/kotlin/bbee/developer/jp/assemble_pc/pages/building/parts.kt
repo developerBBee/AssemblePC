@@ -59,6 +59,7 @@ fun PartsPage() {
                     PartsLayout(
                         scope = scope,
                         breakpoint = breakpoint,
+                        details = assembly.assemblyDetails,
                         onClickRegisterButton = { item ->
                             scope.launch {
                                 AssemblyDetail(
@@ -112,6 +113,7 @@ fun PartsPage() {
 fun PartsLayout(
     scope: CoroutineScope,
     breakpoint: Breakpoint,
+    details: List<AssemblyDetail>,
     onClickRegisterButton: (Item) -> Unit,
 ) {
     val context = rememberPageContext()
@@ -137,6 +139,7 @@ fun PartsLayout(
     BuildingContents(
         breakpoint = breakpoint,
         items = items,
+        details = details,
         onClick = { itemId ->
             items.find { it.itemId == itemId }?.also { item ->
                 onClickRegisterButton(item)
