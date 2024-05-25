@@ -11,6 +11,7 @@ import kotlin.time.Duration.Companion.days
 
 private val TIMEZONE = TimeZone.currentSystemDefault()
 private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")
+private val DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")
 
 val currentDateTime get() = Clock.System.now().toLocalDateTime(TIMEZONE)
 val currentDateString: String get() = currentDateTime.toJavaLocalDateTime().format(DATE_FORMATTER)
@@ -26,3 +27,5 @@ fun LocalDateTime.set4Hour(): LocalDateTime {
 fun LocalDateTime.minus(other: LocalDateTime): Long {
     return (this.toInstant(TIMEZONE) - other.toInstant(TIMEZONE)).inWholeMilliseconds
 }
+
+fun LocalDateTime.toDateTimeString(): String = toJavaLocalDateTime().format(DATE_TIME_FORMATTER)

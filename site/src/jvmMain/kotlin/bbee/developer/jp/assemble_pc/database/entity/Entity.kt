@@ -6,7 +6,6 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 val TABLES = arrayOf(
-    Samples,
     Users,
     Items,
     ItemCategories,
@@ -18,15 +17,8 @@ val TABLES = arrayOf(
     FavoriteAssemblies
 )
 
-object Samples : Table() {
-    val uuid: Column<String> = varchar("USER_Id", 36)
-    val name: Column<String> = varchar("USER_NAME", 10)
-
-    override val primaryKey = PrimaryKey(firstColumn = uuid, name = "PK_SAMPLES_UUID")
-}
-
 object Users : Table() {
-    val userId: Column<String> = varchar("USER_Id", 36)
+    val userId: Column<String> = varchar("USER_ID", 36)
     val userName: Column<String?> = varchar("USER_NAME", 100).nullable()
     val userEmail: Column<String?> = varchar("USER_EMAIL", 100).nullable()
     val password: Column<String?> = varchar("PASSWORD", 255).nullable()
@@ -85,7 +77,7 @@ object Assemblies : Table() {
     val ownerUserId: Column<String> = varchar("OWNER_USER_ID", 36)
     val assemblyName: Column<String> = varchar("ASSEMBLY_NAME", 100)
     val assemblyUrl: Column<String> = varchar("ASSEMBLY_URL", 255)
-    val ownerComment: Column<String> = varchar("MAKER_URL", 511)
+    val ownerComment: Column<String> = varchar("OWNER_COMMENT", 511)
     val referenceAssemblyId: Column<Int?> = integer("REFERENCE_ASSEMBLY_ID").nullable()
     val published: Column<Boolean> = bool("PUBLISHED")
     val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")

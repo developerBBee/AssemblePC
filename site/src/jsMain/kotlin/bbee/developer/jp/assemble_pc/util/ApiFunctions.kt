@@ -128,3 +128,19 @@ suspend fun deleteAssemblyDetail(assembly: AssemblyForPost): Boolean {
         false
     }
 }
+
+suspend fun getMyPublishedAssemblies(skip: Int): List<Assembly> {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryGet(
+                    apiPath = "get_my_published_assemblies?skip=$skip",
+                    headers = getApiHeader(token),
+                )?.decodeToString()?.parseData<List<Assembly>>()
+                    ?: throw IllegalStateException(message = "getMyPublishedAssemblies() result is null")
+            } ?: throw IllegalStateException(message = "getMyPublishedAssemblies() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        emptyList()
+    }
+}

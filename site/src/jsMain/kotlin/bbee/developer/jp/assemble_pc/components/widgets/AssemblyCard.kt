@@ -1,6 +1,11 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import bbee.developer.jp.assemble_pc.models.Assembly
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.largeSize
@@ -42,7 +47,8 @@ import org.jetbrains.compose.web.css.px
 
 @Composable
 fun AssemblyCard(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    assembly: Assembly
 ) {
     Box(
         modifier = Modifier
@@ -50,13 +56,17 @@ fun AssemblyCard(
             .padding(16.px),
         contentAlignment = Alignment.Center
     ) {
-        AssemblyCardContent(breakpoint = breakpoint)
+        AssemblyCardContent(
+            breakpoint = breakpoint,
+            assembly = assembly
+        )
     }
 }
 
 @Composable
 fun AssemblyCardContent(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    assembly: Assembly
 ) {
     Column(
         modifier = Modifier
@@ -67,7 +77,11 @@ fun AssemblyCardContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        AssemblyHeader(breakpoint = breakpoint)
+        AssemblyHeader(
+            breakpoint = breakpoint,
+            assemblyName = assembly.assemblyName,
+            ownerName = assembly.ownerName ?: "(NO NAME)",
+        )
 
         HorizontalDivider(modifier = Modifier
             .width(95.percent)
@@ -75,7 +89,10 @@ fun AssemblyCardContent(
             .align(Alignment.CenterHorizontally)
         )
 
-        AssemblyMain(breakpoint = breakpoint)
+        AssemblyMain(
+            breakpoint = breakpoint,
+            assembly = assembly
+        )
 
         HorizontalDivider(modifier = Modifier
             .width(95.percent)
@@ -89,7 +106,9 @@ fun AssemblyCardContent(
 
 @Composable
 fun AssemblyHeader(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    assemblyName: String,
+    ownerName: String
 ) {
     Row(
         modifier = Modifier
@@ -103,7 +122,8 @@ fun AssemblyHeader(
                 .fontWeight(FontWeight.Bold)
                 .fontSize(breakpoint.largeSize())
                 .maxLines(1),
-            text = "コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強コスパ最強")
+            text = assemblyName
+        )
 
         Spacer()
 
@@ -114,15 +134,18 @@ fun AssemblyHeader(
                 .fontWeight(FontWeight.Bold)
                 .fontSize(breakpoint.largeSize())
                 .maxLines(1),
-            text = "作成者：山田XYZ")
+            text = ownerName
+        )
     }
 }
 
 @Composable
 fun AssemblyMain(
     breakpoint: Breakpoint,
-    onShowMore: () -> Unit = {}
+    assembly: Assembly
 ) {
+    var showAll by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth(95.percent)
@@ -133,26 +156,31 @@ fun AssemblyMain(
             modifier = Modifier.fillMaxWidth(50.percent),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val showNumber = if (breakpoint >= Breakpoint.LG) 4 else 2
+            val detailsSize = assembly.assemblyDetails.size
+
             SimpleGrid(numColumns = numColumns(base = 1, lg = 2)) {
-                AssemblyThumbnail(breakpoint = breakpoint)
-                AssemblyThumbnail(breakpoint = breakpoint)
-                if (breakpoint >= Breakpoint.LG) {
-                    AssemblyThumbnail(breakpoint = breakpoint)
-                    AssemblyThumbnail(breakpoint = breakpoint)
-                }
+                assembly.assemblyDetails
+                    .sortedBy { it.item.itemCategoryId.id }
+                    .take(if (showAll) detailsSize else showNumber)
+                    .forEach { detail ->
+                        AssemblyThumbnail(breakpoint = breakpoint, detail = detail)
+                    }
             }
 
-            SpanText(
-                modifier = Modifier
-                    .color(Theme.BLUE.rgb)
-                    .textAlign(TextAlign.Center)
-                    .fontFamily(Const.FONT_FAMILY)
-                    .fontSize(breakpoint.largeSize())
-                    .fontWeight(FontWeight.Medium)
-                    .cursor(Cursor.Pointer)
-                    .onClick { onShowMore() },
-                text = "すべて表示"
-            )
+            if (showNumber < detailsSize) {
+                SpanText(
+                    modifier = Modifier
+                        .color(Theme.BLUE.rgb)
+                        .textAlign(TextAlign.Center)
+                        .fontFamily(Const.FONT_FAMILY)
+                        .fontSize(breakpoint.largeSize())
+                        .fontWeight(FontWeight.Medium)
+                        .cursor(Cursor.Pointer)
+                        .onClick { showAll = !showAll },
+                    text = if (showAll) "表示を省略" else "すべて表示"
+                )
+            }
         }
 
         AssemblyInfo(
@@ -160,7 +188,8 @@ fun AssemblyMain(
                 .fillMaxWidth(50.percent)
                 .margin(2.px)
                 .fillMaxHeight(),
-            breakpoint = breakpoint
+            breakpoint = breakpoint,
+            assembly = assembly
         )
     }
 }

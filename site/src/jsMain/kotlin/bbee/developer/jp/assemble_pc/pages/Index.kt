@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import bbee.developer.jp.assemble_pc.components.sections.Header
 import bbee.developer.jp.assemble_pc.components.sections.Advertisement
-import bbee.developer.jp.assemble_pc.components.widgets.AssemblyCard
 import bbee.developer.jp.assemble_pc.firebase.auth
 import bbee.developer.jp.assemble_pc.util.signInAnonymous
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
@@ -61,10 +60,10 @@ fun TopContents(breakpoint: Breakpoint) {
                 .margin(8.px),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            AssemblyCard(breakpoint = breakpoint)
-            AssemblyCard(breakpoint = breakpoint)
-            AssemblyCard(breakpoint = breakpoint)
-            AssemblyCard(breakpoint = breakpoint)
+//            AssemblyCard(breakpoint = breakpoint)
+//            AssemblyCard(breakpoint = breakpoint)
+//            AssemblyCard(breakpoint = breakpoint)
+//            AssemblyCard(breakpoint = breakpoint)
         }
 
         if (breakpoint >= Breakpoint.LG) Advertisement(modifier = Modifier.margin(left = 16.px))

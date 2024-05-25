@@ -19,6 +19,7 @@ import bbee.developer.jp.assemble_pc.models.DetailId
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
+import bbee.developer.jp.assemble_pc.navigation.Screen
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.IsUserLoggedIn
 import bbee.developer.jp.assemble_pc.util.deleteAssemblyDetail
@@ -46,6 +47,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.position
 import com.varabyte.kobweb.compose.ui.modifiers.resize
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
+import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.theme.breakpoint.rememberBreakpoint
 import kotlinx.coroutines.launch
@@ -60,6 +62,7 @@ import org.jetbrains.compose.web.dom.TextArea
 fun AssemblyPage() {
     val scope = rememberCoroutineScope()
     val breakpoint = rememberBreakpoint()
+    val context = rememberPageContext()
 
     var currentAssembly: Assembly? by remember { mutableStateOf(null) }
 
@@ -120,7 +123,20 @@ fun AssemblyPage() {
             }
         }
 
-        StickyActionBar(breakpoint = breakpoint)
+        currentAssembly?.also { assembly ->
+            if (assembly.assemblyDetails.isNotEmpty()) {
+                StickyActionBar(
+                    breakpoint = breakpoint,
+                    onPublishClick = {
+                        scope.launch {
+                            if (updateAssembly(assembly = assembly.copy(published = true))) {
+                                context.router.navigateTo(Screen.PublishedPage.route)
+                            }
+                        }
+                    }
+                )
+            }
+        }
 
         if (showAssemblyNamePopup) {
             currentAssembly?.let { assembly ->
@@ -201,7 +217,10 @@ fun AssemblyContents(
 }
 
 @Composable
-fun StickyActionBar(breakpoint: Breakpoint) {
+fun StickyActionBar(
+    breakpoint: Breakpoint,
+    onPublishClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -223,7 +242,7 @@ fun StickyActionBar(breakpoint: Breakpoint) {
                 text = "公開",
                 color = Colors.Black,
                 backgroundColor = Theme.YELLOW.rgb,
-                onClick = { /* TODO publish */ }
+                onClick = onPublishClick
             )
         }
     }
