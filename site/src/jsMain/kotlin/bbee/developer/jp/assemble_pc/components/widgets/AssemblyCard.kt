@@ -48,7 +48,8 @@ import org.jetbrains.compose.web.css.px
 @Composable
 fun AssemblyCard(
     breakpoint: Breakpoint,
-    assembly: Assembly
+    assembly: Assembly,
+    ownerName: String = assembly.ownerName ?: "(NO NAME)"
 ) {
     Box(
         modifier = Modifier
@@ -58,7 +59,8 @@ fun AssemblyCard(
     ) {
         AssemblyCardContent(
             breakpoint = breakpoint,
-            assembly = assembly
+            assembly = assembly,
+            ownerName = ownerName
         )
     }
 }
@@ -66,7 +68,8 @@ fun AssemblyCard(
 @Composable
 fun AssemblyCardContent(
     breakpoint: Breakpoint,
-    assembly: Assembly
+    assembly: Assembly,
+    ownerName: String,
 ) {
     Column(
         modifier = Modifier
@@ -80,7 +83,7 @@ fun AssemblyCardContent(
         AssemblyHeader(
             breakpoint = breakpoint,
             assemblyName = assembly.assemblyName,
-            ownerName = assembly.ownerName ?: "(NO NAME)",
+            ownerName = ownerName,
         )
 
         HorizontalDivider(modifier = Modifier

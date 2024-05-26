@@ -15,6 +15,7 @@ import bbee.developer.jp.assemble_pc.models.ItemCategoryId
 import bbee.developer.jp.assemble_pc.models.ItemId
 import bbee.developer.jp.assemble_pc.models.MakerId
 import bbee.developer.jp.assemble_pc.models.Price
+import bbee.developer.jp.assemble_pc.models.Profile
 import bbee.developer.jp.assemble_pc.task.data.repository.LocalRepository
 import bbee.developer.jp.assemble_pc.util.currentDateTime
 import bbee.developer.jp.assemble_pc.util.localRepository
@@ -75,6 +76,37 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                 it[updatedAt] = now
             }
             context.logger.debug("addUserAnonymous() finish insert")
+            true
+        }
+    }
+
+    override suspend fun getUserProfile(uid: String): Profile {
+        return transaction(database) {
+            context.logger.debug("getUserProfile() start select")
+            Users.selectAll()
+                .where { Users.userId eq uid }
+                .first()
+                .let {
+                    Profile(
+                        userName = it[Users.userName],
+                        userEmail = it[Users.userEmail]
+                    )
+                }
+        }
+    }
+
+    override suspend fun updateUserProfile(uid: String, profile: Profile): Boolean {
+        val now = currentDateTime
+
+        return transaction(database) {
+            context.logger.debug("updateUserProfile() start update")
+            Users.update(where = { Users.userId eq uid}) {
+                it[userName] = profile.userName
+                it[userEmail] = profile.userEmail
+                it[createdAt] = now
+                it[updatedAt] = now
+            }
+            context.logger.debug("updateUserProfile() finish update")
             true
         }
     }
@@ -287,7 +319,12 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
-    override suspend fun getAssemblies(uid: String, skip: Long, own: Boolean): List<Assembly> {
+    override suspend fun getAssemblies(
+        uid: String,
+        skip: Long,
+        own: Boolean,
+        published: Boolean
+    ): List<Assembly> {
         return transaction(database) {
             Assemblies
                 .join(
@@ -310,14 +347,14 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                 )
                 .selectAll()
                 .where {
-                    Assemblies.published eq true and
+                    (Assemblies.published eq published) and
                     if (own) {
-                        Assemblies.ownerUserId eq uid
+                        (Assemblies.ownerUserId eq uid)
                     } else {
-                        Assemblies.ownerUserId neq uid
+                        (Assemblies.ownerUserId neq uid)
                     }
                 }
-                .orderBy(Assemblies.updatedAt)
+                .orderBy(column = Assemblies.updatedAt, order = SortOrder.DESC)
                 .limit(n = 20, offset = skip)
                 .groupBy { it[Assemblies.assemblyId] }
                 .map { (_, details) ->

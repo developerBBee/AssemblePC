@@ -79,6 +79,7 @@ fun PartsCard(
 
         itemCategory?.let {
             CategoryTag(
+                breakpoint = breakpoint,
                 itemCategory = it,
                 fontSize = breakpoint.largeSize()
             )

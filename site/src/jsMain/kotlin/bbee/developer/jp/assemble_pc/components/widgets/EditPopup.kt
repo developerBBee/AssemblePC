@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
+import bbee.developer.jp.assemble_pc.util.largeSize
+import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxWidth
 import com.varabyte.kobweb.compose.ui.modifiers.fontFamily
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
+import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.height
 import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.onClick
@@ -41,10 +44,13 @@ import org.jetbrains.compose.web.css.vw
 fun EditPopup(
     breakpoint: Breakpoint,
     title: String? = null,
+    message: String? = null,
     initText: String = "",
+    hintText: String = "",
+    buttonText: String,
     maxLength: Int = 30,
-    onDialogDismiss: () -> Unit,
-    onUpdateClick: (String) -> Unit = {}
+    onDismiss: () -> Unit,
+    onPositiveClick: (String) -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -58,7 +64,7 @@ fun EditPopup(
             modifier = Modifier
                 .fillMaxSize()
                 .backgroundColor(Theme.TRANSLUCENT.rgb)
-                .onClick { onDialogDismiss() }
+                .onClick { onDismiss() }
         )
         Box(
             modifier = Modifier
@@ -70,9 +76,12 @@ fun EditPopup(
             EditContent(
                 breakpoint = breakpoint,
                 title = title,
+                message = message,
                 initText = initText,
+                hintText = hintText,
+                buttonText = buttonText,
                 maxLength = maxLength,
-                onUpdateClick = onUpdateClick
+                onPositiveClick = onPositiveClick
             )
         }
     }
@@ -82,12 +91,14 @@ fun EditPopup(
 fun EditContent(
     breakpoint: Breakpoint,
     title: String?,
+    message: String?,
     initText: String,
+    hintText: String,
+    buttonText: String,
     maxLength: Int,
-    onUpdateClick: (String) -> Unit
+    onPositiveClick: (String) -> Unit
 ) {
     var inputText by remember { mutableStateOf(initText) }
-    var nameUpdateEnabled by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -96,8 +107,24 @@ fun EditContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (!title.isNullOrEmpty()) {
-            SpanText(text = title)
+            SpanText(
+                modifier = Modifier
+                    .margin(topBottom = 16.px)
+                    .fontFamily(Const.FONT_FAMILY)
+                    .fontWeight(FontWeight.Bold),
+                text = title
+            )
         }
+
+        message?.split("\n")?.forEach { messageEachLine ->
+            SpanText(
+                modifier = Modifier
+                    .fontFamily(Const.FONT_FAMILY)
+                    .fontSize(breakpoint.largeSize()),
+                text = messageEachLine
+            )
+        }
+
         Input(
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,16 +134,17 @@ fun EditContent(
                 .fontSize(16.px)
                 .onFocusOut { inputText = inputText.take(maxLength) },
             type = InputType.Text,
+            placeholder = hintText,
             value = inputText,
             onValueChanged = { inputText = it },
             onCommit = { inputText = inputText.take(maxLength) },
         )
         FloatingButton(
-            modifier = Modifier.padding(8.px),
+            modifier = Modifier,
             breakpoint = breakpoint,
-            text = "OK",
+            text = buttonText,
             enabled = inputText != initText,
-            onClick = { onUpdateClick(inputText) }
+            onClick = { onPositiveClick(inputText) }
         )
     }
 }

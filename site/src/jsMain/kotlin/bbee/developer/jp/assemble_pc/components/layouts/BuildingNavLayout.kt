@@ -9,6 +9,7 @@ import bbee.developer.jp.assemble_pc.util.largeSize
 import bbee.developer.jp.assemble_pc.util.maxLines
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
+import com.varabyte.kobweb.compose.css.Visibility
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.height
 import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.modifiers.padding
+import com.varabyte.kobweb.compose.ui.modifiers.visibility
 import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.silk.components.icons.fa.FaFile
 import com.varabyte.kobweb.silk.components.icons.fa.FaPenToSquare
@@ -38,6 +40,8 @@ fun BuildingNavLayout(
     breakpoint: Breakpoint,
     assemblyName: String,
     totalAmount: Price,
+    newAssemblyVisible: Boolean,
+    onNewAssemblyClick: () -> Unit,
     onAssemblyNameClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -47,7 +51,11 @@ fun BuildingNavLayout(
             .padding(16.px),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        CreateNew(fontSize = breakpoint.largeSize())
+        CreateNew(
+            fontSize = breakpoint.largeSize(),
+            visible = newAssemblyVisible,
+            onClick = onNewAssemblyClick
+        )
 
         Row(
             modifier = Modifier
@@ -76,12 +84,18 @@ fun BuildingNavLayout(
 }
 
 @Composable
-fun CreateNew(fontSize: CSSSizeValue<CSSUnit.px>) {
+fun CreateNew(
+    fontSize: CSSSizeValue<CSSUnit.px>,
+    visible: Boolean,
+    onClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .height(32.px)
             .margin(8.px)
-            .cursor(Cursor.Pointer),
+            .visibility(if (visible) Visibility.Visible else Visibility.Hidden)
+            .cursor(Cursor.Pointer)
+            .onClick { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         FaFile(
