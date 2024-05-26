@@ -17,9 +17,8 @@ import com.varabyte.kobweb.compose.ui.modifiers.color
 import com.varabyte.kobweb.compose.ui.modifiers.fontFamily
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
-import com.varabyte.kobweb.compose.ui.modifiers.height
+import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.textAlign
-import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.components.text.SpanText
 import org.jetbrains.compose.web.css.CSSColorValue
@@ -37,8 +36,10 @@ fun FloatingButton(
 ) {
     Box(
         modifier = modifier
-            .width(if (breakpoint >= Breakpoint.MD) 64.px else 48.px)
-            .height(if (breakpoint >= Breakpoint.MD) 32.px else 24.px)
+            .padding(
+                topBottom = if (breakpoint >= Breakpoint.MD) 8.px else 4.px,
+                leftRight = if (breakpoint >= Breakpoint.MD) 16.px else 8.px
+            )
             .borderRadius(8.px)
             .boxShadow(offsetX = 1.px, offsetY = 1.px, blurRadius = 2.px, color = Theme.TRANSLUCENT.rgb)
             .enabledButton(enabled = enabled, backgroundColor = backgroundColor, onClick = onClick),

@@ -9,8 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import bbee.developer.jp.assemble_pc.components.layouts.BuildingNavLayout
-import bbee.developer.jp.assemble_pc.components.layouts.CommonLayout
-import bbee.developer.jp.assemble_pc.components.widgets.EditPopup
+import bbee.developer.jp.assemble_pc.components.layouts.CommonBuildingLayout
 import bbee.developer.jp.assemble_pc.components.widgets.PartsCard
 import bbee.developer.jp.assemble_pc.components.widgets.SearchBar
 import bbee.developer.jp.assemble_pc.models.Assembly
@@ -22,6 +21,7 @@ import bbee.developer.jp.assemble_pc.models.PartsButtonType
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.IsUserLoggedIn
+import bbee.developer.jp.assemble_pc.util.createAssembly
 import bbee.developer.jp.assemble_pc.util.getCurrentAssembly
 import bbee.developer.jp.assemble_pc.util.largeSize
 import bbee.developer.jp.assemble_pc.util.maxLines
@@ -69,10 +69,41 @@ fun BuildingPage() {
 
     var currentAssembly: Assembly? by remember { mutableStateOf(null) }
 
+    var showNewCreatingPopup by remember { mutableStateOf(false) }
     var showAssemblyNamePopup by remember { mutableStateOf(false) }
 
     IsUserLoggedIn {
-        CommonLayout(breakpoint = breakpoint) {
+        CommonBuildingLayout(
+            breakpoint = breakpoint,
+            showNewCreatingPopup = showNewCreatingPopup,
+            showAssemblyNamePopup = showAssemblyNamePopup,
+            currentAssembly = currentAssembly,
+            onDismiss = {
+                showNewCreatingPopup = false
+                showAssemblyNamePopup = false
+            },
+            onNewCreatingPositiveClick = { name ->
+                scope.launch {
+                    createAssembly(assemblyName = name, referenceAssemblyId = null)
+                        ?.let { newAssembly ->
+                            currentAssembly = newAssembly
+                        }
+                    showNewCreatingPopup = false
+                }
+            },
+            onNameEditPositiveClick = { newName ->
+                currentAssembly?.also { assembly ->
+                    scope.launch {
+                        assembly.copy(assemblyName = newName).also { newAssembly ->
+                            if (updateAssembly(newAssembly)) {
+                                currentAssembly = newAssembly
+                            }
+                            showAssemblyNamePopup = false
+                        }
+                    }
+                }
+            },
+        ) {
             LaunchedEffect(Unit) {
                 getCurrentAssembly()?.also {
                     currentAssembly = it
@@ -84,31 +115,12 @@ fun BuildingPage() {
                     breakpoint = breakpoint,
                     assemblyName = assembly.assemblyName,
                     totalAmount = assembly.totalAmount(),
-                    onAssemblyNameClick = {}
+                    newAssemblyVisible = assembly.assemblyDetails.isNotEmpty(),
+                    onNewAssemblyClick = { showNewCreatingPopup = true },
+                    onAssemblyNameClick = { showAssemblyNamePopup = true }
                 ) {
                     BuildingContents(breakpoint = breakpoint, items = items)
                 }
-            }
-        }
-
-        if (showAssemblyNamePopup) {
-            currentAssembly?.let { assembly ->
-                EditPopup(
-                    breakpoint = breakpoint,
-                    title = "構成名の更新",
-                    initText = assembly.assemblyName,
-                    onDialogDismiss = { showAssemblyNamePopup = false },
-                    onUpdateClick = { newName ->
-                        scope.launch {
-                            val newAssembly = assembly.copy(assemblyName = newName)
-                            val isSuccess = updateAssembly(newAssembly)
-                            if (isSuccess) {
-                                currentAssembly = newAssembly
-                            }
-                            showAssemblyNamePopup = false
-                        }
-                    }
-                )
             }
         }
     }
@@ -162,7 +174,7 @@ fun PartsMenu(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         ItemCategory.entries.forEach { parts ->
-            val isSelected = context.route.path.contains(parts.route)
+            val isSelected = (context.route.path == parts.route)
 
             SpanText(
                 modifier = Modifier

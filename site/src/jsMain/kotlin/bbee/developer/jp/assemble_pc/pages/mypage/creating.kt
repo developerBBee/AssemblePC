@@ -19,7 +19,7 @@ import bbee.developer.jp.assemble_pc.models.Profile
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.IsUserLoggedIn
 import bbee.developer.jp.assemble_pc.util.getMyProfile
-import bbee.developer.jp.assemble_pc.util.getMyPublishedAssemblies
+import bbee.developer.jp.assemble_pc.util.getMyUnpublishedAssemblies
 import bbee.developer.jp.assemble_pc.util.hugeSize
 import bbee.developer.jp.assemble_pc.util.largeSize
 import bbee.developer.jp.assemble_pc.util.updateMyProfile
@@ -45,7 +45,7 @@ import org.jetbrains.compose.web.css.px
 
 @Page
 @Composable
-fun PublishedPage() {
+fun CreatingPage() {
     val breakpoint = rememberBreakpoint()
     val scope = rememberCoroutineScope()
 
@@ -76,7 +76,7 @@ fun PublishedPage() {
             }
         ) {
             myProfile?.also {
-                PublishedContents(
+                CreatingContents(
                     breakpoint = breakpoint,
                     userName = it.userName ?: "(NO NAME)",
                     onClick = { showNameEditPopup = true }
@@ -87,7 +87,7 @@ fun PublishedPage() {
 }
 
 @Composable
-fun PublishedContents(
+fun CreatingContents(
     breakpoint: Breakpoint,
     userName: String,
     onClick: () -> Unit
@@ -96,7 +96,7 @@ fun PublishedContents(
     val assemblies: MutableList<Assembly> = remember { mutableStateListOf() }
     LaunchedEffect(Unit) {
         scope.launch {
-            assemblies.addAll(getMyPublishedAssemblies(skip = 0))
+            assemblies.addAll(getMyUnpublishedAssemblies(skip = 0))
         }
     }
 
@@ -115,8 +115,8 @@ fun PublishedContents(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ProfileEdit(
-                name = userName,
                 fontSize = breakpoint.largeSize(),
+                name = userName,
                 onClick = onClick
             )
             SearchBar(breakpoint = breakpoint)
@@ -133,7 +133,7 @@ fun PublishedContents(
                             .padding(24.px)
                             .fontFamily(Const.FONT_FAMILY)
                             .fontSize(breakpoint.hugeSize()),
-                        text = "公開済みの構成はありません"
+                        text = "作成中の構成はありません"
                     )
                 }
                 assemblies.forEach { assembly ->

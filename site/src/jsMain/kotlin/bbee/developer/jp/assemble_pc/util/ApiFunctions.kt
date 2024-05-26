@@ -6,6 +6,7 @@ import bbee.developer.jp.assemble_pc.models.AssemblyForPost
 import bbee.developer.jp.assemble_pc.models.AssemblyId
 import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
+import bbee.developer.jp.assemble_pc.models.Profile
 import com.varabyte.kobweb.browser.api
 import kotlinx.browser.window
 import kotlinx.serialization.encodeToString
@@ -21,6 +22,39 @@ suspend fun createAnonymousUser(): Boolean {
                 )?.decodeToString()?.parseData<Boolean>()
                     ?: throw IllegalStateException(message = "createAnonymousUser() result is null")
             } ?: throw IllegalStateException(message = "createAnonymousUser() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        false
+    }
+}
+
+suspend fun getMyProfile(): Profile? {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryGet(
+                    apiPath = "get_my_profile",
+                    headers = getApiHeader(token)
+                )?.decodeToString()?.parseData<Profile>()
+                    ?: throw IllegalStateException(message = "getMyProfile() result is null")
+            } ?: throw IllegalStateException(message = "getMyProfile() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        null
+    }
+}
+
+suspend fun updateMyProfile(profile: Profile): Boolean {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryPost(
+                    apiPath = "update_my_profile",
+                    headers = getApiHeader(token),
+                    body = Json.encodeToString(profile).encodeToByteArray()
+                )?.decodeToString()?.parseData<Boolean>()
+                    ?: throw IllegalStateException(message = "updateMyProfile() result is null")
+            } ?: throw IllegalStateException(message = "updateMyProfile() user or token is null")
     }.getOrElse { e ->
         println(e.message)
         false
@@ -139,6 +173,22 @@ suspend fun getMyPublishedAssemblies(skip: Int): List<Assembly> {
                 )?.decodeToString()?.parseData<List<Assembly>>()
                     ?: throw IllegalStateException(message = "getMyPublishedAssemblies() result is null")
             } ?: throw IllegalStateException(message = "getMyPublishedAssemblies() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        emptyList()
+    }
+}
+
+suspend fun getMyUnpublishedAssemblies(skip: Int): List<Assembly> {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryGet(
+                    apiPath = "get_my_unpublished_assemblies?skip=$skip",
+                    headers = getApiHeader(token),
+                )?.decodeToString()?.parseData<List<Assembly>>()
+                    ?: throw IllegalStateException(message = "getMyUnpublishedAssemblies() result is null")
+            } ?: throw IllegalStateException(message = "getMyUnpublishedAssemblies() user or token is null")
     }.getOrElse { e ->
         println(e.message)
         emptyList()

@@ -181,7 +181,20 @@ suspend fun getMyPublishedAssemblies(context: ApiContext) {
         getUid().also { uid ->
             req.params.getOrDefault("skip", "0").toLongOrNull().also { skip ->
                 data.getValue<H2DB>()
-                    .getAssemblies(uid = uid, skip = skip ?: 0L, own = true)
+                    .getAssemblies(uid = uid, skip = skip ?: 0L, own = true, published = true)
+                    .also { result -> res.setBody(result) }
+            }
+        }
+    }.onFailureCommonResponse(context = context, functionName = "getMyPublishedAssemblies")
+}
+
+@Api(routeOverride = "get_my_unpublished_assemblies")
+suspend fun getMyUnpublishedAssemblies(context: ApiContext) {
+    context.runCatching {
+        getUid().also { uid ->
+            req.params.getOrDefault("skip", "0").toLongOrNull().also { skip ->
+                data.getValue<H2DB>()
+                    .getAssemblies(uid = uid, skip = skip ?: 0L, own = true, published = false)
                     .also { result -> res.setBody(result) }
             }
         }
