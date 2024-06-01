@@ -16,6 +16,8 @@ val TABLES = arrayOf(
     FavoriteMakers,
     FavoriteAssemblies
 )
+const val CREATE_FAV_ASSEM_VIEW: String = """CREATE VIEW IF NOT EXISTS FAVORITE_ASSEMBLIES_VIEW AS (SELECT ASSEMBLY_ID, COUNT(ASSEMBLY_ID) AS FAVORITE_COUNT FROM FAVORITEASSEMBLIES GROUP BY ASSEMBLY_ID);"""
+const val CREATE_REF_ASSEM_VIEW: String = """CREATE VIEW IF NOT EXISTS REFERENCE_ASSEMBLIES_VIEW AS (SELECT REFERENCE_ASSEMBLY_ID AS ASSEMBLY_ID, COUNT(REFERENCE_ASSEMBLY_ID) AS REFERENCE_COUNT FROM ASSEMBLIES WHERE REFERENCE_ASSEMBLY_ID IS NOT NULL GROUP BY REFERENCE_ASSEMBLY_ID);"""
 
 object Users : Table() {
     val userId: Column<String> = varchar("USER_ID", 36)
@@ -128,4 +130,14 @@ object FavoriteAssemblies : Table() {
     val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
     override val primaryKey = PrimaryKey(firstColumn = id, name = "PK_FAVORITE_ASSEMBLIES_ID")
+}
+
+object FavoriteAssembliesView : Table("FAVORITE_ASSEMBLIES_VIEW") {
+    val assemblyId: Column<Int> = integer("ASSEMBLY_ID")
+    val favoriteCount: Column<Long> = long("FAVORITE_COUNT")
+}
+
+object ReferenceAssembliesView : Table("REFERENCE_ASSEMBLIES_VIEW") {
+    val assemblyId: Column<Int> = integer("ASSEMBLY_ID")
+    val referenceCount: Column<Long> = long("REFERENCE_COUNT")
 }

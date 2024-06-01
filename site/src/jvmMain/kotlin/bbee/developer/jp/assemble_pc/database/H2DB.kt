@@ -2,6 +2,10 @@ package bbee.developer.jp.assemble_pc.database
 
 import bbee.developer.jp.assemble_pc.database.entity.Assemblies
 import bbee.developer.jp.assemble_pc.database.entity.AssemblyDetails
+import bbee.developer.jp.assemble_pc.database.entity.CREATE_FAV_ASSEM_VIEW
+import bbee.developer.jp.assemble_pc.database.entity.CREATE_REF_ASSEM_VIEW
+import bbee.developer.jp.assemble_pc.database.entity.FavoriteAssemblies
+import bbee.developer.jp.assemble_pc.database.entity.FavoriteAssembliesView
 import bbee.developer.jp.assemble_pc.database.entity.Items
 import bbee.developer.jp.assemble_pc.database.entity.TABLES
 import bbee.developer.jp.assemble_pc.database.entity.Users
@@ -32,8 +36,10 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -53,6 +59,8 @@ fun initDatabase(context: InitApiContext) {
 
         // Create table if not exists
         SchemaUtils.create(*TABLES)
+        exec(CREATE_FAV_ASSEM_VIEW)
+        exec(CREATE_REF_ASSEM_VIEW)
     }
 }
 
@@ -172,7 +180,8 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                             ?.let { AssemblyId(id = it) },
                         published = assemblyRow[Assemblies.published],
                         publishedDate = assemblyRow[Assemblies.updatedAt].toDateTimeString(),
-                        assemblyDetails = assemblyDetails
+                        assemblyDetails = assemblyDetails,
+                        favoriteCount = 0,
                     )
                 }
                 .first()
@@ -323,7 +332,8 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         uid: String,
         skip: Long,
         own: Boolean,
-        published: Boolean
+        published: Boolean,
+        favoriteOnly: Boolean
     ): List<Assembly> {
         return transaction(database) {
             Assemblies
@@ -345,14 +355,31 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                     onColumn = AssemblyDetails.itemId,
                     otherColumn = Items.itemId,
                 )
+                .join(
+                    otherTable = FavoriteAssembliesView,
+                    joinType = JoinType.LEFT,
+                    onColumn = Assemblies.assemblyId,
+                    otherColumn = FavoriteAssembliesView.assemblyId
+                )
+                .join(
+                    otherTable = FavoriteAssemblies,
+                    joinType = JoinType.LEFT,
+                    onColumn = Assemblies.assemblyId,
+                    otherColumn = FavoriteAssemblies.assemblyId
+                )
                 .selectAll()
                 .where {
                     (Assemblies.published eq published) and
-                    if (own) {
-                        (Assemblies.ownerUserId eq uid)
-                    } else {
-                        (Assemblies.ownerUserId neq uid)
-                    }
+                            if (own) {
+                                (Assemblies.ownerUserId eq uid)
+                            } else {
+                                (Assemblies.ownerUserId neq uid)
+                            } and
+                            if (favoriteOnly) {
+                                (FavoriteAssemblies.ownerUserId eq uid)
+                            } else {
+                                (Assemblies.assemblyId eq Assemblies.assemblyId) // Always true
+                            }
                 }
                 .orderBy(column = Assemblies.updatedAt, order = SortOrder.DESC)
                 .limit(n = 20, offset = skip)
@@ -390,7 +417,9 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                                 ),
                                 priceAtRegistered = Price(value = it[AssemblyDetails.priceAtRegistered]),
                             )
-                        }
+                        },
+                        favoriteCount = assemblyResult
+                            .getOrNull(FavoriteAssembliesView.favoriteCount)?.toInt() ?: 0,
                     )
                 }
         }
@@ -455,6 +484,60 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
             }
             context.logger.debug("updateItem() finish update")
             true
+        }
+    }
+
+
+    override suspend fun addFavoriteAssembly(uid: String, aid: AssemblyId): Boolean {
+        return transaction(database) {
+            context.logger.debug("addFavoriteAssembly() start check duplication : $uid#${aid.id}")
+            FavoriteAssemblies
+                .selectAll()
+                .where {
+                    (FavoriteAssemblies.ownerUserId eq uid) and
+                            (FavoriteAssemblies.assemblyId eq aid.id)
+                }
+                .firstOrNull()
+                ?.also {
+                    context.logger.debug("addFavoriteAssembly() already exist : $uid#${aid.id}")
+                    return@transaction false
+                }
+
+            context.logger.debug("addFavoriteAssembly() start insert : $uid#${aid.id}")
+            FavoriteAssemblies.insert {
+                val now = currentDateTime
+                it[ownerUserId] = uid
+                it[assemblyId] = aid.id
+                it[createdAt] = now
+                it[updatedAt] = now
+            }
+            context.logger.debug("addItem() finish insert")
+            true
+        }
+    }
+
+    override suspend fun removeFavoriteAssembly(uid: String, aid: AssemblyId): Boolean {
+        return transaction(database) {
+            context.logger.debug("removeFavoriteAssembly() start delete : $uid#${aid.id}")
+            FavoriteAssemblies.deleteWhere { (ownerUserId eq uid) and (assemblyId eq aid.id) }
+                .also {
+                    if (it == 0) {
+                        context.logger.debug("removeFavoriteAssembly() not found : $uid#${aid.id}")
+                        return@transaction false
+                    }
+                }
+            context.logger.debug("removeFavoriteAssembly() finish delete")
+            true
+        }
+    }
+
+    override suspend fun getMyFavoriteAssemblyIdList(uid: String): List<AssemblyId> {
+        return transaction(database) {
+            context.logger.debug("getMyFavoriteAssemblyIds() start select")
+            FavoriteAssemblies
+                .selectAll()
+                .where { FavoriteAssemblies.ownerUserId eq uid }
+                .map { AssemblyId(id = it[FavoriteAssemblies.assemblyId]) }
         }
     }
 }

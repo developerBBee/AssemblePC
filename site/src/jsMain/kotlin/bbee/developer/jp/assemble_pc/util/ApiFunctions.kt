@@ -194,3 +194,83 @@ suspend fun getMyUnpublishedAssemblies(skip: Int): List<Assembly> {
         emptyList()
     }
 }
+
+suspend fun getPublishedAssemblies(skip: Int): List<Assembly> {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryGet(
+                    apiPath = "get_published_assemblies?skip=$skip",
+                    headers = getApiHeader(token),
+                )?.decodeToString()?.parseData<List<Assembly>>()
+                    ?: throw IllegalStateException(message = "getPublishedAssemblies() result is null")
+            } ?: throw IllegalStateException(message = "getPublishedAssemblies() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        emptyList()
+    }
+}
+
+suspend fun getMyFavoriteAssemblyIdList(): List<AssemblyId> {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryGet(
+                    apiPath = "get_my_favorite_assembly_id_list",
+                    headers = getApiHeader(token),
+                )?.decodeToString()?.parseData<List<AssemblyId>>()
+                    ?: throw IllegalStateException(message = "getMyFavoriteAssemblyIdList() result is null")
+            } ?: throw IllegalStateException(message = "getMyFavoriteAssemblyIdList() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        emptyList()
+    }
+}
+
+suspend fun addFavoriteAssembly(assemblyId: AssemblyId): Boolean {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryGet(
+                    apiPath = "add_favorite_assembly?assemblyId=${assemblyId.id}",
+                    headers = getApiHeader(token),
+                )?.decodeToString()?.parseData<Boolean>()
+                    ?: throw IllegalStateException(message = "addFavoriteAssembly() result is null")
+            } ?: throw IllegalStateException(message = "addFavoriteAssembly() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        false
+    }
+}
+
+suspend fun removeFavoriteAssembly(assemblyId: AssemblyId): Boolean {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryGet(
+                    apiPath = "remove_favorite_assembly?assemblyId=${assemblyId.id}",
+                    headers = getApiHeader(token),
+                )?.decodeToString()?.parseData<Boolean>()
+                    ?: throw IllegalStateException(message = "removeFavoriteAssembly() result is null")
+            } ?: throw IllegalStateException(message = "removeFavoriteAssembly() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        false
+    }
+}
+
+suspend fun getMyFavoriteAssemblies(skip: Int): List<Assembly> {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryGet(
+                    apiPath = "get_my_favorite_assemblies?skip=$skip",
+                    headers = getApiHeader(token),
+                )?.decodeToString()?.parseData<List<Assembly>>()
+                    ?: throw IllegalStateException(message = "getMyFavoriteAssemblies() result is null")
+            } ?: throw IllegalStateException(message = "getMyFavoriteAssemblies() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        emptyList()
+    }
+}

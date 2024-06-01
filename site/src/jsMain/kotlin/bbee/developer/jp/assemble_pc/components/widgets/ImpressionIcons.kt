@@ -1,6 +1,11 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.mediumSize
 import com.varabyte.kobweb.compose.css.Cursor
@@ -11,15 +16,19 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.attrsModifier
 import com.varabyte.kobweb.compose.ui.modifiers.classNames
+import com.varabyte.kobweb.compose.ui.modifiers.color
 import com.varabyte.kobweb.compose.ui.modifiers.cursor
+import com.varabyte.kobweb.compose.ui.modifiers.fillMaxHeight
 import com.varabyte.kobweb.compose.ui.modifiers.fontFamily
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.onClick
+import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.silk.components.icons.fa.FaShareFromSquare
 import com.varabyte.kobweb.silk.components.icons.fa.FaThumbsUp
+import com.varabyte.kobweb.silk.components.icons.fa.IconSize
 import com.varabyte.kobweb.silk.components.icons.fa.IconStyle
 import com.varabyte.kobweb.silk.components.navigation.Link
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
@@ -28,46 +37,65 @@ import org.jetbrains.compose.web.css.px
 
 @Composable
 fun ImpressionIcons(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    isMyFavorite: Boolean,
+    favoriteCount: Int,
+    referenceCount: Int,
+    onFavoriteClick: (Boolean) -> Unit,
+    onReferenceClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.width(240.px),
+        modifier = Modifier.fillMaxHeight().width(240.px),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
             modifier = Modifier
+                .fillMaxHeight()
                 .cursor(Cursor.Pointer)
-                .onClick { },
+                .onClick { onFavoriteClick(isMyFavorite) },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FaThumbsUp(style = IconStyle.FILLED)
+            FaThumbsUp(
+                modifier = Modifier
+                    .padding(bottom = 2.px)
+                    .color(if (isMyFavorite) Theme.RED.rgb else Theme.DARK_GRAY.rgb),
+                style = IconStyle.FILLED,
+                size = IconSize.LG
+            )
 
             SpanText(
                 modifier = Modifier
-                    .margin(2.px)
+                    .align(Alignment.CenterVertically)
+                    .margin(left = 4.px)
                     .fontFamily(Const.FONT_FAMILY)
                     .fontSize(breakpoint.mediumSize())
-                    .fontWeight(FontWeight.Bold),
-                text = "100"
+                    .fontWeight(FontWeight.Bold)
+                    .color(if (isMyFavorite) Theme.RED.rgb else Theme.DARK_GRAY.rgb),
+                text = favoriteCount.toString()
             )
         }
 
         Row(
             modifier = Modifier
                 .cursor(Cursor.Pointer)
-                .onClick { },
+                .onClick { onReferenceClick() },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FaShareFromSquare(style = IconStyle.FILLED)
+            FaShareFromSquare(
+                modifier = Modifier.color(Theme.DARK_GRAY.rgb),
+                style = IconStyle.FILLED,
+                size = IconSize.LG
+            )
 
             SpanText(
                 modifier = Modifier
-                    .margin(2.px)
+                    .margin(left = 4.px)
                     .fontFamily(Const.FONT_FAMILY)
                     .fontSize(breakpoint.mediumSize())
-                    .fontWeight(FontWeight.Bold),
-                text = "100"
+                    .fontWeight(FontWeight.Bold)
+                    .color(Theme.DARK_GRAY.rgb),
+                text = referenceCount.toString()
             )
         }
 
