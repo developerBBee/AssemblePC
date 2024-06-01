@@ -43,8 +43,9 @@ suspend fun createAssembly(context: ApiContext) {
                         referenceAssemblyId = refId?.toIntOrNull()?.let { AssemblyId(it) } ,
                         published = false,
                         publishedDate = currentDateTime.toDateTimeString(),
-                        assemblyDetails = emptyList()
-                    ).let { assembly ->
+                        assemblyDetails = emptyList(),
+                        favoriteCount = 0,
+                    ).also { assembly ->
                         data.getValue<H2DB>().addAssembly(uid, assembly).also { isSuccess ->
                             if (isSuccess) {
                                 getCurrentAssembly(context = context)
@@ -199,4 +200,40 @@ suspend fun getMyUnpublishedAssemblies(context: ApiContext) {
             }
         }
     }.onFailureCommonResponse(context = context, functionName = "getMyPublishedAssemblies")
+}
+
+@Api(routeOverride = "get_published_assemblies")
+suspend fun getPublishedAssemblies(context: ApiContext) {
+    context.runCatching {
+        getUid().also { uid ->
+            req.params.getOrDefault("skip", "0").toLongOrNull().also { skip ->
+                data.getValue<H2DB>()
+                    .getAssemblies(uid = uid, skip = skip ?: 0L, own = false, published = true)
+                    .also { result -> res.setBody(result) }
+            }
+        }
+    }.onFailureCommonResponse(context = context, functionName = "getPublishedAssemblies")
+}
+
+@Api(routeOverride = "get_my_favorite_assembly_id_list")
+suspend fun getMyFavoriteAssemblyIdList(context: ApiContext) {
+    context.runCatching {
+        getUid().also { uid ->
+            data.getValue<H2DB>().getMyFavoriteAssemblyIdList(uid)
+                .also { list -> res.setBody(list) }
+        }
+    }.onFailureCommonResponse(context = context, functionName = "getMyFavoriteAssemblyIdList")
+}
+
+@Api(routeOverride = "get_my_favorite_assemblies")
+suspend fun getMyFavoriteAssemblies(context: ApiContext) {
+    context.runCatching {
+        getUid().also { uid ->
+            req.params.getOrDefault("skip", "0").toLongOrNull().also { skip ->
+                data.getValue<H2DB>()
+                    .getAssemblies(uid = uid, skip = skip ?: 0L, own = false, published = true, favoriteOnly = true)
+                    .also { list -> res.setBody(list) }
+            }
+        }
+    }.onFailureCommonResponse(context = context, functionName = "getMyFavoriteAssemblies")
 }

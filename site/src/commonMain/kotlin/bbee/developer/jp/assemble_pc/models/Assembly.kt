@@ -14,6 +14,7 @@ data class Assembly(
     val published: Boolean,
     val publishedDate: String,
     val assemblyDetails: List<AssemblyDetail>,
+    val favoriteCount: Int,
 )
 
 @Serializable

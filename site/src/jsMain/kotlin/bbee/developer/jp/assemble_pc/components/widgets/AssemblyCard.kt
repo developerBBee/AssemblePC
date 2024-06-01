@@ -49,7 +49,10 @@ import org.jetbrains.compose.web.css.px
 fun AssemblyCard(
     breakpoint: Breakpoint,
     assembly: Assembly,
-    ownerName: String = assembly.ownerName ?: "(NO NAME)"
+    isMyFavorite: Boolean = false,
+    ownerName: String = assembly.ownerName ?: "(NO NAME)",
+    onFavoriteClick: (Boolean) -> Unit = {},
+    onReferenceClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -60,7 +63,10 @@ fun AssemblyCard(
         AssemblyCardContent(
             breakpoint = breakpoint,
             assembly = assembly,
-            ownerName = ownerName
+            isMyFavorite = isMyFavorite,
+            ownerName = ownerName,
+            onFavoriteClick = onFavoriteClick,
+            onReferenceClick = onReferenceClick
         )
     }
 }
@@ -69,7 +75,10 @@ fun AssemblyCard(
 fun AssemblyCardContent(
     breakpoint: Breakpoint,
     assembly: Assembly,
+    isMyFavorite: Boolean,
     ownerName: String,
+    onFavoriteClick: (Boolean) -> Unit,
+    onReferenceClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -103,7 +112,14 @@ fun AssemblyCardContent(
             .align(Alignment.CenterHorizontally)
         )
 
-        AssemblyFooter(breakpoint = breakpoint)
+        AssemblyFooter(
+            breakpoint = breakpoint,
+            isMyFavorite = isMyFavorite,
+            favoriteCount = assembly.favoriteCount,
+            referenceCount = 0, // TODO assembly.referenceCount,
+            onFavoriteClick = onFavoriteClick,
+            onReferenceClick = onReferenceClick
+        )
     }
 }
 
@@ -199,7 +215,12 @@ fun AssemblyMain(
 
 @Composable
 fun AssemblyFooter(
-    breakpoint: Breakpoint
+    breakpoint: Breakpoint,
+    isMyFavorite: Boolean,
+    favoriteCount: Int,
+    referenceCount: Int,
+    onFavoriteClick: (Boolean) -> Unit,
+    onReferenceClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -207,6 +228,13 @@ fun AssemblyFooter(
             .padding(topBottom = 8.px),
         horizontalArrangement = Arrangement.Center
     ) {
-        ImpressionIcons(breakpoint = breakpoint)
+        ImpressionIcons(
+            breakpoint = breakpoint,
+            isMyFavorite = isMyFavorite,
+            favoriteCount = favoriteCount,
+            referenceCount = referenceCount,
+            onFavoriteClick = onFavoriteClick,
+            onReferenceClick = onReferenceClick,
+        )
     }
 }
