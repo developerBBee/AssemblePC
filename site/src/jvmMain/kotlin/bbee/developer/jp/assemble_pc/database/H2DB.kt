@@ -12,6 +12,7 @@ import bbee.developer.jp.assemble_pc.database.entity.Users
 import bbee.developer.jp.assemble_pc.models.Assembly
 import bbee.developer.jp.assemble_pc.models.AssemblyDetail
 import bbee.developer.jp.assemble_pc.models.AssemblyId
+import bbee.developer.jp.assemble_pc.models.DESC_JSON
 import bbee.developer.jp.assemble_pc.models.DetailId
 import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
@@ -28,6 +29,8 @@ import com.varabyte.kobweb.api.data.add
 import com.varabyte.kobweb.api.init.InitApi
 import com.varabyte.kobweb.api.init.InitApiContext
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -36,10 +39,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
-import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -155,7 +156,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                                     itemName = row[Items.itemName],
                                     linkUrl = row[Items.linkUrl],
                                     imageUrl = row[Items.imageUrl],
-                                    description = row[Items.description],
+                                    description = DESC_JSON.decodeFromString(row[Items.description]),
                                     price = Price(row[Items.price]),
                                     rank = row[Items.rank],
                                     flag1 = row[Items.flag1],
@@ -315,7 +316,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                         itemName = it[Items.itemName],
                         linkUrl = it[Items.linkUrl],
                         imageUrl = it[Items.imageUrl],
-                        description = it[Items.description],
+                        description = DESC_JSON.decodeFromString(it[Items.description]),
                         price = Price(value = it[Items.price]),
                         rank = it[Items.rank],
                         releaseDate = it[Items.releaseDate],
@@ -407,7 +408,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                                     itemName = it[Items.itemName],
                                     linkUrl = it[Items.linkUrl],
                                     imageUrl = it[Items.imageUrl],
-                                    description = it[Items.description],
+                                    description = DESC_JSON.decodeFromString(it[Items.description]),
                                     price = Price(it[Items.price]),
                                     rank = it[Items.rank],
                                     flag1 = it[Items.flag1],
@@ -452,7 +453,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                 it[itemName] = item.itemName
                 it[linkUrl] = item.linkUrl
                 it[imageUrl] = item.imageUrl
-                it[description] = item.description
+                it[description] = Json.encodeToString(item.description)
                 it[price] = item.price.value
                 it[rank] = item.rank
                 it[flag1] = item.flag1
@@ -471,9 +472,12 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         return transaction(database) {
             context.logger.debug("updateItem() start update")
             Items.update(where = { Items.itemId eq 1 } ) {
+                it[itemCategoryId] = item.itemCategoryId.id
+                it[makerId] = item.makerId.id
                 it[itemName] = item.itemName
+                it[linkUrl] = item.linkUrl
                 it[imageUrl] = item.imageUrl
-                it[description] = item.description
+                it[description] = Json.encodeToString(item.description)
                 it[price] = item.price.value
                 it[rank] = item.rank
                 it[flag1] = item.flag1

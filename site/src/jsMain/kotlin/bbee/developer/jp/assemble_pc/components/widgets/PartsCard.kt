@@ -1,6 +1,9 @@
 package bbee.developer.jp.assemble_pc.components.widgets
 
 import androidx.compose.runtime.Composable
+import bbee.developer.jp.assemble_pc.constant.LINE_BREAK
+import bbee.developer.jp.assemble_pc.constant.NEW_LINE
+import bbee.developer.jp.assemble_pc.constant.PARTITION
 import bbee.developer.jp.assemble_pc.models.Item
 import bbee.developer.jp.assemble_pc.models.ItemCategory
 import bbee.developer.jp.assemble_pc.models.ItemId
@@ -128,7 +131,7 @@ fun PartsCardContent(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                item.description.split("\n")
+                item.description.desc().replace(LINE_BREAK, PARTITION).split(NEW_LINE)
                     .filter { it.isNotBlank() }
                     .forEach {
                         SpanText(
