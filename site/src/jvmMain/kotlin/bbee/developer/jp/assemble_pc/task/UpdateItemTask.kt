@@ -30,12 +30,16 @@ class UpdateItemTask {
         private val controller = TaskController()
         fun start() {
             CoroutineScope(Dispatchers.IO).launch {
-                if (DEBUG) {
-                    controller.getItemHtml(category = ItemCategory.CPU)
-                }
+                var debugRun = DEBUG
 
                 while (isActive) {
-                    val next = getNext()
+                    val next = if (debugRun) {
+                        debugRun = false
+                        10000L
+                    } else {
+                        getNext()
+                    }
+
                     logger.debug("Task is scheduled to run in ${next/1000} [s]")
                     delay(next)
                     ItemCategory.entries.forEach { category ->

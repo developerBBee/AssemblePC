@@ -10,7 +10,7 @@ data class Item(
     val itemName: String,
     val linkUrl: String,
     val imageUrl: String,
-    val description: String,
+    val description: Description,
     val price: Price,
     val rank: Int,
     val flag1: Int = 0,
