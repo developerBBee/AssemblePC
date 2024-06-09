@@ -30,7 +30,9 @@ object KakakuRegex {
     val ITEM_NAME = Regex("""<h2 itemprop="name">(.*)</h2>""")
     val IMAGE_URL = Regex("""src="(https://.*)" width="160" height="120" border="0"""")
     val PRICE_TEXT = Regex("""<span class="priceTxt">¥([0-9,]+)</span>""")
-    val RANK_TEXT = Regex("""<li class="ranking">.*<span class="num">(\d+)</span>位.*</li>""")
+    val RANK_TEXT1 = Regex("""<li class="ranking">.*?<span class="num">.*?(\d+)</span>位""")
+    val RANK_TEXT2 = Regex("""<li class="ranking">.*?ランキング<em>.*?(\d+)</em>位""")
+    val RANK_TEXT3 = Regex("""<span class="rankNum">.*?(\d+)</span>""")
 }
 
 val HtmlEntityMap = mapOf(

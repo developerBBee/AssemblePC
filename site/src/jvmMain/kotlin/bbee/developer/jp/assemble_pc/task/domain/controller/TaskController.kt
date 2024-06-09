@@ -99,9 +99,13 @@ class TaskController : KoinComponent {
                                 imageUrl = KakakuRegex.IMAGE_URL.first(it) ?: "",
                                 description = getDetail(it, category),
                                 price = Price.from(KakakuRegex.PRICE_TEXT.first(it) ?: "0"),
-                                rank = KakakuRegex.RANK_TEXT.first(it)?.toInt() ?: Int.MAX_VALUE,
+                                rank = KakakuRegex.RANK_TEXT1.first(it)?.toInt()
+                                    ?: KakakuRegex.RANK_TEXT2.first(it)?.toInt()
+                                    ?: KakakuRegex.RANK_TEXT3.first(it)?.toInt()
+                                    ?: Int.MAX_VALUE,
                                 releaseDate = currentDateString,
-                                outdated = false
+                                outdated = false,
+                                lastUpdate = currentDateString
                             )
                         }
                         .also {
@@ -113,9 +117,23 @@ class TaskController : KoinComponent {
         }.onFailure { logger.error("getItemDetailHtml Exception: $it") }
     }
 
-    private fun saveItemDetail(item: Item) {
+    private suspend fun saveItemDetail(item: Item) {
         runCatching {
             localRepository.saveItem(item = item)
         }.onFailure { logger.error("saveItemDetail Exception: $it") }
+    }
+
+    suspend fun getItemLocal(category: ItemCategory) {
+        runCatching {
+            localRepository
+                .getItems(category = category, skip = 0L, limit = 1000)
+                .filterNot { it.outdated }
+                .filter { it.lastUpdate != currentDateString }
+                .map { Url(it.linkUrl) }
+                .also {
+                    logger.debug("update items size=${it.size}")
+                    urlListFlow.value = Pair(category, it)
+                }
+        }.onFailure { logger.error("getItem Exception: $it") }
     }
 }

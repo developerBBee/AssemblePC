@@ -29,3 +29,5 @@ fun LocalDateTime.minus(other: LocalDateTime): Long {
 }
 
 fun LocalDateTime.toDateTimeString(): String = toJavaLocalDateTime().format(DATE_TIME_FORMATTER)
+
+fun LocalDateTime.toDateString(): String = toJavaLocalDateTime().format(DATE_FORMATTER)

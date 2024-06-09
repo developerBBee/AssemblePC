@@ -17,12 +17,13 @@ data class Item(
     val flag2: Int = 0,
     val releaseDate: String,
     val outdated: Boolean,
+    val lastUpdate: String,
 ) {
     override fun toString(): String {
         return "itemId: $itemId, itemCategoryId: $itemCategoryId, makerId: $makerId" +
                 ", itemName: $itemName, linkUrl: $linkUrl, imageUrl: $imageUrl" +
                 ", description: $description, price: $price, rank: $rank" +
-                ", releaseDate: $releaseDate, outdated: $outdated"
+                ", releaseDate: $releaseDate, outdated: $outdated, lastUpdate: $lastUpdate"
     }
 }
 
