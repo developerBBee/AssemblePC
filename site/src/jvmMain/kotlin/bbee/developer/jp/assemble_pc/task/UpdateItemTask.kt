@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val DEBUG = false
-private val WAIT_INTERVAL = 60000.milliseconds
+private val WAIT_INTERVAL = 30000.milliseconds
 
 @InitApi
 fun initTask(context: InitApiContext) {
@@ -44,6 +44,8 @@ class UpdateItemTask {
                     delay(next)
                     ItemCategory.entries.forEach { category ->
                         controller.getItemHtml(category = category)
+                        delay(WAIT_INTERVAL)
+                        controller.getItemLocal(category = category)
                         delay(WAIT_INTERVAL)
                     }
                 }

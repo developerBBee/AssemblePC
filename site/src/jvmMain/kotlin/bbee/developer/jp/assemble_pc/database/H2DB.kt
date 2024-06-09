@@ -24,6 +24,8 @@ import bbee.developer.jp.assemble_pc.models.Profile
 import bbee.developer.jp.assemble_pc.task.data.repository.LocalRepository
 import bbee.developer.jp.assemble_pc.util.currentDateTime
 import bbee.developer.jp.assemble_pc.util.localRepository
+import bbee.developer.jp.assemble_pc.util.logger
+import bbee.developer.jp.assemble_pc.util.toDateString
 import bbee.developer.jp.assemble_pc.util.toDateTimeString
 import com.varabyte.kobweb.api.data.add
 import com.varabyte.kobweb.api.init.InitApi
@@ -39,6 +41,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
@@ -163,6 +166,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                                     flag2 = row[Items.flag2],
                                     releaseDate = row[Items.releaseDate],
                                     outdated = row[Items.outdated],
+                                    lastUpdate = row[Items.updatedAt].toDateString()
                                 ),
                                 priceAtRegistered = Price(
                                     value = row[AssemblyDetails.priceAtRegistered]
@@ -301,13 +305,13 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
-    override suspend fun getItems(category: ItemCategory, skip: Long): List<Item> {
+    override suspend fun getItems(category: ItemCategory, skip: Long, limit: Int): List<Item> {
         return transaction(database) {
             context.logger.debug("getItems() start select")
             Items.selectAll()
                 .where(Items.itemCategoryId eq category.ordinal)
                 .orderBy(Items.rank)
-                .limit(n = 20, offset = skip)
+                .limit(n = limit, offset = skip)
                 .map {
                     Item(
                         itemId = ItemId(id = it[Items.itemId]),
@@ -321,7 +325,9 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                         rank = it[Items.rank],
                         releaseDate = it[Items.releaseDate],
                         outdated = it[Items.outdated],
+                        lastUpdate = it[Items.updatedAt].toDateString(),
                     )
+                        .also { logger.debug(it.toString()) }
                 }
                 .also {
                     context.logger.debug("getItems() finish select")
@@ -337,17 +343,23 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         favoriteOnly: Boolean
     ): List<Assembly> {
         return transaction(database) {
-            Assemblies
+            val sub = Assemblies
+                .selectAll()
+                .orderBy(column = Assemblies.updatedAt, order = SortOrder.DESC)
+                .limit(n = 20, offset = skip)
+                .alias("AssembliesSubQuery")
+
+            sub
                 .join(
                     otherTable = Users,
                     joinType = JoinType.INNER,
-                    onColumn = Assemblies.ownerUserId,
+                    onColumn = sub[Assemblies.ownerUserId],
                     otherColumn = Users.userId,
                 )
                 .join(
                     otherTable = AssemblyDetails,
                     joinType = JoinType.INNER,
-                    onColumn = Assemblies.assemblyId,
+                    onColumn = sub[Assemblies.assemblyId],
                     otherColumn = AssemblyDetails.assemblyId
                 )
                 .join(
@@ -359,45 +371,44 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                 .join(
                     otherTable = FavoriteAssembliesView,
                     joinType = JoinType.LEFT,
-                    onColumn = Assemblies.assemblyId,
+                    onColumn = sub[Assemblies.assemblyId],
                     otherColumn = FavoriteAssembliesView.assemblyId
                 )
                 .join(
                     otherTable = FavoriteAssemblies,
                     joinType = JoinType.LEFT,
-                    onColumn = Assemblies.assemblyId,
+                    onColumn = sub[Assemblies.assemblyId],
                     otherColumn = FavoriteAssemblies.assemblyId
                 )
                 .selectAll()
                 .where {
-                    (Assemblies.published eq published) and
+                    (sub[Assemblies.published] eq published) and
                             if (own) {
-                                (Assemblies.ownerUserId eq uid)
+                                (sub[Assemblies.ownerUserId] eq uid)
                             } else {
-                                (Assemblies.ownerUserId neq uid)
+                                (sub[Assemblies.ownerUserId] neq uid)
                             } and
                             if (favoriteOnly) {
                                 (FavoriteAssemblies.ownerUserId eq uid)
                             } else {
-                                (Assemblies.assemblyId eq Assemblies.assemblyId) // Always true
+                                (sub[Assemblies.assemblyId] eq sub[Assemblies.assemblyId]) // Always true
                             }
                 }
-                .orderBy(column = Assemblies.updatedAt, order = SortOrder.DESC)
-                .limit(n = 20, offset = skip)
-                .groupBy { it[Assemblies.assemblyId] }
+                .orderBy(column = sub[Assemblies.updatedAt], order = SortOrder.DESC)
+                .groupBy { it[sub[Assemblies.assemblyId]] }
                 .map { (_, details) ->
                     val assemblyResult = details.first()
                     Assembly(
-                        assemblyId = AssemblyId(id = assemblyResult[Assemblies.assemblyId]),
-                        ownerUserId = assemblyResult[Assemblies.ownerUserId],
-                        assemblyName = assemblyResult[Assemblies.assemblyName],
-                        assemblyUrl = assemblyResult[Assemblies.assemblyUrl],
+                        assemblyId = AssemblyId(id = assemblyResult[sub[Assemblies.assemblyId]]),
+                        ownerUserId = assemblyResult[sub[Assemblies.ownerUserId]],
+                        assemblyName = assemblyResult[sub[Assemblies.assemblyName]],
+                        assemblyUrl = assemblyResult[sub[Assemblies.assemblyUrl]],
                         ownerName = assemblyResult[Users.userName],
-                        ownerComment = assemblyResult[Assemblies.ownerComment],
-                        referenceAssemblyId = assemblyResult[Assemblies.referenceAssemblyId]
+                        ownerComment = assemblyResult[sub[Assemblies.ownerComment]],
+                        referenceAssemblyId = assemblyResult[sub[Assemblies.referenceAssemblyId]]
                             ?.let { AssemblyId(id = it) },
-                        published = assemblyResult[Assemblies.published],
-                        publishedDate = assemblyResult[Assemblies.updatedAt].toDateTimeString(),
+                        published = assemblyResult[sub[Assemblies.published]],
+                        publishedDate = assemblyResult[sub[Assemblies.updatedAt]].toDateTimeString(),
                         assemblyDetails = details.map {
                             AssemblyDetail(
                                 detailId = DetailId(id = it[AssemblyDetails.detailId]),
@@ -415,6 +426,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
                                     flag2 = it[Items.flag2],
                                     releaseDate = it[Items.releaseDate],
                                     outdated = it[Items.outdated],
+                                    lastUpdate = it[Items.updatedAt].toDateString(),
                                 ),
                                 priceAtRegistered = Price(value = it[AssemblyDetails.priceAtRegistered]),
                             )
@@ -426,7 +438,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
-    override fun saveItem(item: Item) {
+    override suspend fun saveItem(item: Item) {
         val now = currentDateTime
 
         val itemId = transaction(database) {
@@ -440,7 +452,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         if (itemId == null) {
             addItem(item = item, now = now)
         } else {
-            updateItem(item = item, now = now)
+            updateItem(item = item, itemId = itemId, now = now)
         }
     }
 
@@ -468,10 +480,10 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
-    private fun updateItem(item: Item, now: LocalDateTime): Boolean {
+    private fun updateItem(item: Item, itemId: Int, now: LocalDateTime): Boolean {
         return transaction(database) {
             context.logger.debug("updateItem() start update")
-            Items.update(where = { Items.itemId eq 1 } ) {
+            Items.update(where = { Items.itemId eq itemId } ) {
                 it[itemCategoryId] = item.itemCategoryId.id
                 it[makerId] = item.makerId.id
                 it[itemName] = item.itemName
