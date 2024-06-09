@@ -177,7 +177,6 @@ fun AssemblyMain(
         ) {
             val showNumber = if (breakpoint >= Breakpoint.LG) 4 else 2
             val detailsSize = assembly.assemblyDetails.size
-                .also { console.log("assemblyDetails.size=$it") }
 
             SimpleGrid(numColumns = numColumns(base = 1, lg = 2)) {
                 assembly.assemblyDetails
