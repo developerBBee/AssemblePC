@@ -14,6 +14,7 @@ object LanguageContext {
 object StringRes {
     val appTitle get() = StringMap.APP_TITLE[currentLanguage] ?: Ja.APP_TITLE
     val login get() = StringMap.LOGIN[currentLanguage] ?: Ja.LOGIN
+    val logout get() = StringMap.LOGOUT[currentLanguage] ?: Ja.LOGOUT
     val top get() = StringMap.TOP[currentLanguage] ?: Ja.TOP
     val myPage get() = StringMap.MY_PAGE[currentLanguage] ?: Ja.MY_PAGE
     val building get() = StringMap.BUILDING[currentLanguage] ?: Ja.BUILDING
@@ -26,6 +27,7 @@ object StringRes {
     private object StringMap {
         val APP_TITLE = mapOf(Lang.JA to Ja.APP_TITLE, Lang.EN to En.APP_TITLE)
         val LOGIN = mapOf(Lang.JA to Ja.LOGIN, Lang.EN to En.LOGIN)
+        val LOGOUT = mapOf(Lang.JA to Ja.LOGOUT, Lang.EN to En.LOGOUT)
         val TOP = mapOf(Lang.JA to Ja.TOP, Lang.EN to En.TOP)
         val MY_PAGE = mapOf(Lang.JA to Ja.MY_PAGE, Lang.EN to En.MY_PAGE)
         val BUILDING = mapOf(Lang.JA to Ja.BUILDING, Lang.EN to En.BUILDING)
@@ -39,6 +41,7 @@ object StringRes {
     private object Ja {
         const val APP_TITLE = "自作PC構築支援"
         const val LOGIN = "ログイン"
+        const val LOGOUT = "ログアウト"
         const val TOP = "トップ"
         const val MY_PAGE = "マイページ"
         const val BUILDING = "PC構築"
@@ -52,6 +55,7 @@ object StringRes {
     private object En {
         const val APP_TITLE = "PC Building Support"
         const val LOGIN = "Login"
+        const val LOGOUT = "Logout"
         const val TOP = "Top"
         const val MY_PAGE = "My Page"
         const val BUILDING = "Build PC"

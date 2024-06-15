@@ -2,6 +2,7 @@ package bbee.developer.jp.assemble_pc.navigation
 
 sealed class Screen(val route: String) {
     data object TopPage : Screen("/")
+    data object AccountPage : Screen("/account/")
 
     data object MyPage : Screen("/mypage/")
     data object CreatingPage : Screen("/mypage/creating")

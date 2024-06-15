@@ -26,6 +26,7 @@ import bbee.developer.jp.assemble_pc.util.getMyProfile
 import bbee.developer.jp.assemble_pc.util.hugeSize
 import bbee.developer.jp.assemble_pc.util.largeSize
 import bbee.developer.jp.assemble_pc.util.removeFavoriteAssembly
+import bbee.developer.jp.assemble_pc.util.runIf
 import bbee.developer.jp.assemble_pc.util.updateMyProfile
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
 import com.varabyte.kobweb.compose.foundation.layout.Column
@@ -57,7 +58,7 @@ fun FavoritePage() {
 
     var showNameEditPopup by remember { mutableStateOf(false) }
 
-    IsUserLoggedIn {
+    IsUserLoggedIn { user ->
         LaunchedEffect(Unit) {
             scope.launch {
                 myProfile = getMyProfile() ?: Profile()
@@ -66,6 +67,7 @@ fun FavoritePage() {
 
         CommonMyPageLayout(
             breakpoint = breakpoint,
+            isAnonymous = user.isAnonymous,
             showNameEditPopup = showNameEditPopup,
             userName = myProfile?.userName ?: "",
             onDismiss = { showNameEditPopup = false },
@@ -155,18 +157,14 @@ fun FavoriteContents(
                             scope.launch {
                                 val aid = assembly.assemblyId
                                 if (isFavorite) {
-                                    removeFavoriteAssembly(aid).also { isSuccess ->
-                                        if (isSuccess) {
-                                            myFavoriteList.remove(aid)
-                                            assemblies.favoriteUpdate(assemblyId = aid, addCount = -1)
-                                        }
+                                    runIf(removeFavoriteAssembly(aid)) {
+                                        myFavoriteList.remove(aid)
+                                        assemblies.favoriteUpdate(assemblyId = aid, addCount = -1)
                                     }
                                 } else {
-                                    addFavoriteAssembly(aid).also { isSuccess ->
-                                        if (isSuccess) {
-                                            myFavoriteList.add(aid)
-                                            assemblies.favoriteUpdate(assemblyId = aid, addCount = 1)
-                                        }
+                                    runIf(addFavoriteAssembly(aid)) {
+                                        myFavoriteList.add(aid)
+                                        assemblies.favoriteUpdate(assemblyId = aid, addCount = 1)
                                     }
                                 }
                             }

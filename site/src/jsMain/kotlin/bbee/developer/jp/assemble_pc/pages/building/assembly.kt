@@ -25,6 +25,7 @@ import bbee.developer.jp.assemble_pc.util.createAssembly
 import bbee.developer.jp.assemble_pc.util.deleteAssemblyDetail
 import bbee.developer.jp.assemble_pc.util.getCurrentAssembly
 import bbee.developer.jp.assemble_pc.util.hugeSize
+import bbee.developer.jp.assemble_pc.util.runIf
 import bbee.developer.jp.assemble_pc.util.totalAmount
 import bbee.developer.jp.assemble_pc.util.updateAssembly
 import com.varabyte.kobweb.compose.css.PointerEvents
@@ -69,9 +70,10 @@ fun AssemblyPage() {
     var showNewCreatingPopup by remember { mutableStateOf(false) }
     var showAssemblyNamePopup by remember { mutableStateOf(false) }
 
-    IsUserLoggedIn {
+    IsUserLoggedIn { user ->
         CommonBuildingLayout(
             breakpoint = breakpoint,
+            isAnonymous = user.isAnonymous,
             showNewCreatingPopup = showNewCreatingPopup,
             showAssemblyNamePopup = showAssemblyNamePopup,
             currentAssembly = currentAssembly,
@@ -124,8 +126,7 @@ fun AssemblyPage() {
                             onCommentUpdateClick = { newComment ->
                                 scope.launch {
                                     val newAssembly = assembly.copy(ownerComment = newComment)
-                                    val isSuccess = updateAssembly(newAssembly)
-                                    if (isSuccess) {
+                                    runIf(updateAssembly(newAssembly)) {
                                         currentAssembly = newAssembly
                                     }
                                 }
@@ -140,8 +141,7 @@ fun AssemblyPage() {
                                                 ownerUserId = assembly.ownerUserId,
                                                 assemblyDetail = assemblyDetail
                                             )
-                                            val isSuccess = deleteAssemblyDetail(postAssembly)
-                                            if (isSuccess) {
+                                            runIf(deleteAssemblyDetail(postAssembly)) {
                                                 currentAssembly = assembly.copy(
                                                     assemblyDetails = assembly.assemblyDetails
                                                         .filter { it.detailId != detailId }

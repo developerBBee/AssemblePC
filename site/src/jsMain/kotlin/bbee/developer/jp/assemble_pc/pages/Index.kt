@@ -15,6 +15,7 @@ import bbee.developer.jp.assemble_pc.util.favoriteUpdate
 import bbee.developer.jp.assemble_pc.util.getMyFavoriteAssemblyIdList
 import bbee.developer.jp.assemble_pc.util.getPublishedAssemblies
 import bbee.developer.jp.assemble_pc.util.removeFavoriteAssembly
+import bbee.developer.jp.assemble_pc.util.runIf
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -32,8 +33,8 @@ import org.jetbrains.compose.web.css.px
 fun TopPage() {
     val breakpoint = rememberBreakpoint()
 
-    IsUserLoggedIn {
-        CommonLayout(breakpoint) {
+    IsUserLoggedIn { user ->
+        CommonLayout(breakpoint = breakpoint, isAnonymous = user.isAnonymous) {
             TopContents(breakpoint)
         }
     }
@@ -69,18 +70,14 @@ fun TopContents(breakpoint: Breakpoint) {
                     scope.launch {
                         val aid = assembly.assemblyId
                         if (isFavorite) {
-                            removeFavoriteAssembly(aid).also { isSuccess ->
-                                if (isSuccess) {
-                                    myFavoriteList.remove(aid)
-                                    assemblies.favoriteUpdate(assemblyId = aid, addCount = -1)
-                                }
+                            runIf(removeFavoriteAssembly(aid)) {
+                                myFavoriteList.remove(aid)
+                                assemblies.favoriteUpdate(assemblyId = aid, addCount = -1)
                             }
                         } else {
-                            addFavoriteAssembly(aid).also { isSuccess ->
-                                if (isSuccess) {
-                                    myFavoriteList.add(aid)
-                                    assemblies.favoriteUpdate(assemblyId = aid, addCount = 1)
-                                }
+                            runIf(addFavoriteAssembly(aid)) {
+                                myFavoriteList.add(aid)
+                                assemblies.favoriteUpdate(assemblyId = aid, addCount = 1)
                             }
                         }
                     }

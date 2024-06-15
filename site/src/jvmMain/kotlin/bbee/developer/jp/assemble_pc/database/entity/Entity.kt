@@ -24,6 +24,7 @@ object Users : Table() {
     val userName: Column<String?> = varchar("USER_NAME", 100).nullable()
     val userEmail: Column<String?> = varchar("USER_EMAIL", 100).nullable()
     val password: Column<String?> = varchar("PASSWORD", 255).nullable()
+    val updateEnabled: Column<Boolean> = bool("UPDATE_ENABLED").default(false)
     val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
     val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 

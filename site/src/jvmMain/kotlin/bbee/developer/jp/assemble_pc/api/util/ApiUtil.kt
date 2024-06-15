@@ -31,3 +31,7 @@ fun ApiContext.getUid(): String = req.headers["Authorization"]
         FirebaseAuth.getInstance().verifyIdToken(token).uid
     }
     ?: throw IllegalArgumentException("The result of parsing the authentication in the request header was null.")
+
+fun deleteUser(uid: String) {
+    FirebaseAuth.getInstance().deleteUser(uid)
+}

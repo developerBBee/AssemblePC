@@ -4,13 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import bbee.developer.jp.assemble_pc.firebase.auth
 import bbee.developer.jp.assemble_pc.models.Theme
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.Overflow
 import com.varabyte.kobweb.compose.css.TextOverflow
+import com.varabyte.kobweb.compose.css.Visibility
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
@@ -22,8 +26,10 @@ import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.modifiers.outline
 import com.varabyte.kobweb.compose.ui.modifiers.overflow
 import com.varabyte.kobweb.compose.ui.modifiers.textOverflow
+import com.varabyte.kobweb.compose.ui.modifiers.visibility
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
+import dev.gitlive.firebase.auth.externals.User
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.CSSColorValue
@@ -33,11 +39,12 @@ import org.jetbrains.compose.web.css.LineStyle
 import org.jetbrains.compose.web.css.px
 
 @Composable
-fun IsUserLoggedIn(content: @Composable () -> Unit) {
+fun IsUserLoggedIn(content: @Composable (User) -> Unit) {
     val scope = rememberCoroutineScope()
     val user by auth.authStateChanged
         .map { it?.js }
         .collectAsState(initial = null, context = scope.coroutineContext)
+    var uid by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         scope.launch {
@@ -45,10 +52,22 @@ fun IsUserLoggedIn(content: @Composable () -> Unit) {
         }
     }
 
-    user?.let {
-        content()
+    user?.also { loginUser ->
+        uid?.also { bufferedUid ->
+            if (!(loginUser.isAnonymous) && bufferedUid != loginUser.uid) {
+                scope.launch {
+                    updateUserId(uid = bufferedUid)
+                }
+            }
+        }
+
+        uid = loginUser.uid
+        content(loginUser)
     }
 }
+
+fun Modifier.visibleIf(visible: Boolean): Modifier = this
+    .visibility(if (visible) Visibility.Visible else Visibility.Hidden)
 
 fun Modifier.noBorder(): Modifier = this
     .border(

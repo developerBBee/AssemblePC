@@ -8,6 +8,7 @@ import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 @Composable
 fun CommonBuildingLayout(
     breakpoint: Breakpoint,
+    isAnonymous: Boolean,
     showNewCreatingPopup: Boolean,
     showAssemblyNamePopup: Boolean,
     currentAssembly: Assembly?,
@@ -16,7 +17,7 @@ fun CommonBuildingLayout(
     onNameEditPositiveClick: (String) -> Unit,
     content: @Composable () -> Unit
 ) {
-    CommonLayout(breakpoint = breakpoint) {
+    CommonLayout(breakpoint = breakpoint, isAnonymous = isAnonymous) {
         content()
     }
 

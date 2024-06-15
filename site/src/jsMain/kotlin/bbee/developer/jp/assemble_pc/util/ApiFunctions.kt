@@ -28,6 +28,39 @@ suspend fun createAnonymousUser(): Boolean {
     }
 }
 
+suspend fun preRegisterUidUpdate(): Boolean {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryPost(
+                    apiPath = "pre_register_uid_update",
+                    headers = getApiHeader(token)
+                )?.decodeToString()?.parseData<Boolean>()
+                    ?: throw IllegalStateException(message = "preRegisterUidUpdate() result is null")
+            } ?: throw IllegalStateException(message = "preRegisterUidUpdate() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        false
+    }
+}
+
+suspend fun updateUserId(uid: String): Boolean {
+    return runCatching {
+        auth.currentUser?.getIdToken(false)
+            ?.let { token ->
+                window.api.tryPost(
+                    apiPath = "update_user_id",
+                    headers = getApiHeader(token),
+                    body = Json.encodeToString(uid).encodeToByteArray()
+                )?.decodeToString()?.parseData<Boolean>()
+                    ?: throw IllegalStateException(message = "updateUserId() result is null")
+            } ?: throw IllegalStateException(message = "updateUserId() user or token is null")
+    }.getOrElse { e ->
+        println(e.message)
+        false
+    }
+}
+
 suspend fun getMyProfile(): Profile? {
     return runCatching {
         auth.currentUser?.getIdToken(false)
