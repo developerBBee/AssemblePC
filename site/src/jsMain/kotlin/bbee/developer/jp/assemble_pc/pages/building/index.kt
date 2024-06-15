@@ -72,9 +72,10 @@ fun BuildingPage() {
     var showNewCreatingPopup by remember { mutableStateOf(false) }
     var showAssemblyNamePopup by remember { mutableStateOf(false) }
 
-    IsUserLoggedIn {
+    IsUserLoggedIn { user ->
         CommonBuildingLayout(
             breakpoint = breakpoint,
+            isAnonymous = user.isAnonymous,
             showNewCreatingPopup = showNewCreatingPopup,
             showAssemblyNamePopup = showAssemblyNamePopup,
             currentAssembly = currentAssembly,

@@ -6,6 +6,8 @@ import bbee.developer.jp.assemble_pc.database.entity.CREATE_FAV_ASSEM_VIEW
 import bbee.developer.jp.assemble_pc.database.entity.CREATE_REF_ASSEM_VIEW
 import bbee.developer.jp.assemble_pc.database.entity.FavoriteAssemblies
 import bbee.developer.jp.assemble_pc.database.entity.FavoriteAssembliesView
+import bbee.developer.jp.assemble_pc.database.entity.FavoriteItems
+import bbee.developer.jp.assemble_pc.database.entity.FavoriteMakers
 import bbee.developer.jp.assemble_pc.database.entity.Items
 import bbee.developer.jp.assemble_pc.database.entity.TABLES
 import bbee.developer.jp.assemble_pc.database.entity.Users
@@ -92,6 +94,74 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
+    override suspend fun preRegisterUidUpdate(uid: String): Boolean {
+        val now = currentDateTime
+
+        return transaction(database) {
+            context.logger.debug("preRegisterUidUpdate start update")
+
+            Users.update(where = { Users.userId eq uid }) {
+                it[updateEnabled] = true
+                it[updatedAt] = now
+            }
+            true
+        }
+    }
+
+    override suspend fun updateUserId(oldUid: String, newUid: String): Boolean {
+        val now = currentDateTime
+
+        return transaction(database) {
+            context.logger.debug("check newUid already exist")
+            Users.selectAll()
+                .where { Users.userId eq newUid }
+                .firstOrNull()
+                ?.also {
+                    context.logger.debug("New user already exist, delete old user")
+                    Users.deleteWhere { userId eq oldUid }
+                    Assemblies.deleteWhere { ownerUserId eq oldUid }
+                    AssemblyDetails.deleteWhere { ownerUserId eq oldUid }
+                    FavoriteItems.deleteWhere { ownerUserId eq oldUid }
+                    FavoriteMakers.deleteWhere { ownerUserId eq oldUid }
+                    FavoriteAssemblies.deleteWhere { ownerUserId eq oldUid }
+                    return@transaction true
+                }
+
+            context.logger.debug("updateUserId start update")
+            Users.update(where = { (Users.updateEnabled eq true) and (Users.userId eq oldUid) }) {
+                it[userId] = newUid
+                it[updateEnabled] = false
+                it[updatedAt] = now
+            }.let { result ->
+                if (result == 1) {
+                    context.logger.debug("updateUserId finish update")
+                    Assemblies.update(where = { (Assemblies.ownerUserId eq oldUid) }) {
+                        it[ownerUserId] = newUid
+                        it[updatedAt] = now
+                    }
+                    AssemblyDetails.update(where = { (AssemblyDetails.ownerUserId eq oldUid) }) {
+                        it[ownerUserId] = newUid
+                        it[updatedAt] = now
+                    }
+                    FavoriteItems.update(where = { (FavoriteItems.ownerUserId eq oldUid) }) {
+                        it[ownerUserId] = newUid
+                        it[updatedAt] = now
+                    }
+                    FavoriteMakers.update(where = { (FavoriteMakers.ownerUserId eq oldUid) }) {
+                        it[ownerUserId] = newUid
+                        it[updatedAt] = now
+                    }
+                    FavoriteAssemblies.update(where = { (FavoriteAssemblies.ownerUserId eq oldUid) }) {
+                        it[ownerUserId] = newUid
+                        it[updatedAt] = now
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+    }
     override suspend fun getUserProfile(uid: String): Profile {
         return transaction(database) {
             context.logger.debug("getUserProfile() start select")

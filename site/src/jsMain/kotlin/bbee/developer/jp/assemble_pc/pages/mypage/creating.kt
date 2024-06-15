@@ -53,7 +53,7 @@ fun CreatingPage() {
 
     var showNameEditPopup by remember { mutableStateOf(false) }
 
-    IsUserLoggedIn {
+    IsUserLoggedIn { user ->
         LaunchedEffect(Unit) {
             scope.launch {
                 myProfile = getMyProfile() ?: Profile()
@@ -62,6 +62,7 @@ fun CreatingPage() {
 
         CommonMyPageLayout(
             breakpoint = breakpoint,
+            isAnonymous = user.isAnonymous,
             showNameEditPopup = showNameEditPopup,
             userName = myProfile?.userName ?: "",
             onDismiss = { showNameEditPopup = false },

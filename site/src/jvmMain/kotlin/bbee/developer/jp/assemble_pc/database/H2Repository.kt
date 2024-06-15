@@ -10,6 +10,8 @@ import bbee.developer.jp.assemble_pc.models.Profile
 
 interface H2Repository {
     suspend fun addUserAnonymous(uid: String): Boolean
+    suspend fun preRegisterUidUpdate(uid: String): Boolean
+    suspend fun updateUserId(oldUid: String, newUid: String): Boolean
     suspend fun getUserProfile(uid: String): Profile
     suspend fun updateUserProfile(uid: String, profile: Profile): Boolean
     suspend fun getCurrentAssembly(uid: String): Assembly

@@ -48,7 +48,10 @@ import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
 import org.jetbrains.compose.web.css.px
 
 @Composable
-fun Header(breakpoint: Breakpoint) {
+fun Header(
+    breakpoint: Breakpoint,
+    isAnonymous: Boolean,
+) {
     val context = rememberPageContext()
 
     Row(
@@ -98,9 +101,10 @@ fun Header(breakpoint: Breakpoint) {
                 .fontFamily(Const.FONT_FAMILY)
                 .fontSize(12.px)
                 .fontWeight(FontWeight.Bold)
-                .textAlign(TextAlign.Center),
+                .textAlign(TextAlign.Center)
+                .onClick { context.router.navigateTo(Screen.AccountPage.route) },
             path = "",
-            text = StringRes.login,
+            text = if (isAnonymous) StringRes.login else StringRes.logout,
         )
     }
 }

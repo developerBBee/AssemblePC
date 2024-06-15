@@ -11,7 +11,7 @@ object Const {
 object Res {
     object Image {
         const val LOGO = "/assemble-pc-logo.png"
-        const val ITEM = "/item001.jpeg"
+        const val SIGN_IN = "/web_light_sq_SI.svg"
     }
 }
 

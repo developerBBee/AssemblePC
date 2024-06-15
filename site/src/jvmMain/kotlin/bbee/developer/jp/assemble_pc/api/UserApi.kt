@@ -1,5 +1,6 @@
 package bbee.developer.jp.assemble_pc.api
 
+import bbee.developer.jp.assemble_pc.api.util.deleteUser
 import bbee.developer.jp.assemble_pc.api.util.getBody
 import bbee.developer.jp.assemble_pc.api.util.getUid
 import bbee.developer.jp.assemble_pc.api.util.onFailureCommonResponse
@@ -27,6 +28,36 @@ suspend fun createUserAnonymous(context: ApiContext) {
                 res.setBody(result)
             }
     }.onFailureCommonResponse(context = context, functionName = "createUserAnonymous")
+}
+
+@Api(routeOverride = "pre_register_uid_update")
+suspend fun preRegisterUidUpdate(context: ApiContext) {
+    context.runCatching {
+        getUid().also { uid ->
+            data.getValue<H2DB>()
+                .preRegisterUidUpdate(uid = uid)
+                .also { result -> res.setBody(result) }
+        }
+    }
+}
+
+@Api(routeOverride = "update_user_id")
+suspend fun updateUserId(context: ApiContext) {
+    context.runCatching {
+        getUid().also { uid ->
+            req.getBody<String>()?.also { anonymousUid ->
+                data.getValue<H2DB>()
+                    .updateUserId(oldUid = anonymousUid, newUid = uid)
+                    .also { result ->
+                        if (result) {
+                            logger.debug("deleteUser: $anonymousUid")
+                            deleteUser(anonymousUid)
+                        }
+                        res.setBody(result)
+                    }
+            }
+        }
+    }.onFailureCommonResponse(context = context, functionName = "updateUserId")
 }
 
 @Api(routeOverride = "get_my_profile")

@@ -22,6 +22,7 @@ import bbee.developer.jp.assemble_pc.util.collectOnUidChanged
 import bbee.developer.jp.assemble_pc.util.createAssembly
 import bbee.developer.jp.assemble_pc.util.getCurrentAssembly
 import bbee.developer.jp.assemble_pc.util.getItems
+import bbee.developer.jp.assemble_pc.util.runIf
 import bbee.developer.jp.assemble_pc.util.totalAmount
 import bbee.developer.jp.assemble_pc.util.updateAssembly
 import com.varabyte.kobweb.core.Page
@@ -42,9 +43,10 @@ fun PartsPage() {
     var showNewCreatingPopup by remember { mutableStateOf(false) }
     var showAssemblyNamePopup by remember { mutableStateOf(false) }
 
-    IsUserLoggedIn {
+    IsUserLoggedIn { user ->
         CommonBuildingLayout(
             breakpoint = breakpoint,
+            isAnonymous = user.isAnonymous,
             showNewCreatingPopup = showNewCreatingPopup,
             showAssemblyNamePopup = showAssemblyNamePopup,
             currentAssembly = currentAssembly,
@@ -130,8 +132,7 @@ fun PartsPage() {
                     onPositiveClick = { newName ->
                         scope.launch {
                             val newAssembly = assembly.copy(assemblyName = newName)
-                            val isSuccess = updateAssembly(newAssembly)
-                            if (isSuccess) {
+                            runIf(updateAssembly(newAssembly)) {
                                 currentAssembly = newAssembly
                             }
                             showAssemblyNamePopup = false
