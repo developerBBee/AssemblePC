@@ -5,13 +5,14 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.varabyte.kobweb.api.init.InitApi
 import com.varabyte.kobweb.api.init.InitApiContext
-import java.io.FileInputStream
+import java.io.ByteArrayInputStream
 
 @InitApi
 fun initFirebase(context: InitApiContext) {
-    val refreshToken = FileInputStream("src/jvmMain/resources/service-account.json")
+    val credentials = GoogleCredentials
+        .fromStream(ByteArrayInputStream(Credentials))
     val options = FirebaseOptions.builder()
-        .setCredentials(GoogleCredentials.fromStream(refreshToken))
+        .setCredentials(credentials)
         .build()
     FirebaseApp.initializeApp(options)
 }
