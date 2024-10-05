@@ -10,5 +10,10 @@ server:
     prod:
       script: "build/dist/js/productionExecutable/assemble_pc.js"
       siteRoot: ".kobweb/site"
+  cors:
+    hosts:
+      - name: "localhost"
+        schemes:
+          - "http"
 
   port: 8080
