@@ -14,7 +14,7 @@ FROM eclipse-temurin:21 as java
 # of space.
 FROM java as export
 
-ENV KOBWEB_CLI_VERSION=0.9.16
+ENV KOBWEB_CLI_VERSION=0.9.18
 ARG KOBWEB_APP_ROOT
 
 ENV NODE_MAJOR=20
