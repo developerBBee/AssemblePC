@@ -32,7 +32,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.textAlign
 import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.compose.ui.modifiers.zIndex
 import com.varabyte.kobweb.silk.components.forms.Input
-import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
+import com.varabyte.kobweb.silk.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.components.text.SpanText
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.css.Position
@@ -136,7 +136,7 @@ fun EditContent(
             type = InputType.Text,
             placeholder = hintText,
             value = inputText,
-            onValueChanged = { inputText = it },
+            onValueChange = { inputText = it },
             onCommit = { inputText = inputText.take(maxLength) },
         )
         FloatingButton(

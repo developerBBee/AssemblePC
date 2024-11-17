@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import bbee.developer.jp.assemble_pc.models.Content
 import bbee.developer.jp.assemble_pc.models.Theme
 import bbee.developer.jp.assemble_pc.navigation.Screen
-import bbee.developer.jp.assemble_pc.styles.NoUnderlineLinkVariant
 import bbee.developer.jp.assemble_pc.util.Const
 import bbee.developer.jp.assemble_pc.util.Res
 import bbee.developer.jp.assemble_pc.util.StringRes
@@ -44,7 +43,8 @@ import com.varabyte.kobweb.core.PageContext
 import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.graphics.Image
 import com.varabyte.kobweb.silk.components.navigation.Link
-import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
+import com.varabyte.kobweb.silk.components.navigation.UndecoratedLinkVariant
+import com.varabyte.kobweb.silk.style.breakpoint.Breakpoint
 import org.jetbrains.compose.web.css.px
 
 @Composable
@@ -86,7 +86,7 @@ fun Header(
                     .onClick { context.router.navigateTo(Screen.TopPage.route) },
                 path = "",
                 text = StringRes.appTitle,
-                variant = NoUnderlineLinkVariant
+                variant = UndecoratedLinkVariant
             )
         }
 
@@ -141,7 +141,7 @@ fun HeaderMenu(
                         .onClick { context.router.navigateTo(content.route) },
                     path = "",
                     text = content.text,
-                    variant = if (isSelected) null else NoUnderlineLinkVariant
+                    variant = if (isSelected) null else UndecoratedLinkVariant
                 )
             }
         }

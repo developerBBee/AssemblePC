@@ -27,7 +27,7 @@ import bbee.developer.jp.assemble_pc.util.totalAmount
 import bbee.developer.jp.assemble_pc.util.updateAssembly
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.core.rememberPageContext
-import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
+import com.varabyte.kobweb.silk.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.theme.breakpoint.rememberBreakpoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

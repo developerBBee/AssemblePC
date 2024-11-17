@@ -30,3 +30,6 @@ local.properties
 # secrets
 FirebaseSecrets.kt
 service-account.json
+
+# Kotlin 2.0
+.kotlin
