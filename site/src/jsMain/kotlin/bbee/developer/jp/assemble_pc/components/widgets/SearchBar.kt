@@ -17,7 +17,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.outlineColor
 import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.silk.components.forms.Input
-import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
+import com.varabyte.kobweb.silk.style.breakpoint.Breakpoint
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.css.CSSColorValue
 import org.jetbrains.compose.web.css.px
@@ -41,6 +41,6 @@ fun SearchBar(
         type = InputType.Search,
         placeholder = "検索",
         value = searchText,
-        onValueChanged = { searchText = it }
+        onValueChange = { searchText = it }
     )
 }

@@ -3,7 +3,7 @@ package bbee.developer.jp.assemble_pc.components.layouts
 import androidx.compose.runtime.Composable
 import bbee.developer.jp.assemble_pc.components.widgets.EditPopup
 import bbee.developer.jp.assemble_pc.models.Assembly
-import com.varabyte.kobweb.silk.components.style.breakpoint.Breakpoint
+import com.varabyte.kobweb.silk.style.breakpoint.Breakpoint
 
 @Composable
 fun CommonBuildingLayout(

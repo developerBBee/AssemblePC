@@ -22,12 +22,12 @@ $ brew install varabyte/tap/kobweb
 Add firebase secrets to jsMain in project:
 
 ```kotlin
-// ($ProjectRoot)/site/src/jsMain/kotlin/bbee/developer/jp/assemble_pc/firebase/FirebaseSecret.kt
+// ($ProjectRoot)/site/src/jsMain/kotlin/bbee/developer/jp/assemble_pc/firebase/FirebaseSecrets.kt
 
 val MyFirebaseOptions = FirebaseOptions(
-    apikey = "..."
-    applicationId = "..."
-    projectId = "..."
+    apiKey = "...",
+    applicationId = "...",
+    projectId = "...",
     .
     .
 )
