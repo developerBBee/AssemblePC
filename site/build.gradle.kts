@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kobweb.application)
-    alias(libs.plugins.kobwebx.markdown)
+//    alias(libs.plugins.kobwebx.markdown)
     alias(libs.plugins.kotlinx.serialization)
 }
 
