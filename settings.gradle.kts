@@ -12,3 +12,4 @@ rootProject.name = "assemble_pc"
 
 include(":site")
 include(":androidApp")
+include(":shared")

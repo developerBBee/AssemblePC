@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
 }
 
-group = "bbee.developer.jp.assemble_pc"
+group = "jp.developer.bbee.assemblepc"
 version = "1.0-SNAPSHOT"
 
 kobweb {
@@ -45,6 +45,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":shared"))
             implementation(compose.runtime)
             implementation(libs.kotlinx.serialization)
         }
@@ -57,7 +58,7 @@ kotlin {
             // This default template uses built-in SVG icons, but what's available is limited.
             // Uncomment the following if you want access to a large set of font-awesome icons:
             // implementation(libs.silk.icons.fa)
-            implementation(libs.kobwebx.markdown)
+//            implementation(libs.kobwebx.markdown)
             implementation(libs.kotlinx.serialization)
             implementation(libs.silk.icons.fa)
         }
