@@ -10,10 +10,11 @@ import jp.developer.bbee.assemblepc.util.append
 import jp.developer.bbee.assemblepc.util.currentDateString
 import jp.developer.bbee.assemblepc.util.first
 import jp.developer.bbee.assemblepc.util.getDetail
-import jp.developer.bbee.assemblepc.util.localRepository
 import jp.developer.bbee.assemblepc.util.logger
 import jp.developer.bbee.assemblepc.util.replaceHtmlEntity
 import io.ktor.http.Url
+import jp.developer.bbee.assemblepc.models.ItemId
+import jp.developer.bbee.assemblepc.task.data.repository.DataRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -36,6 +37,7 @@ private val INTERVAL = 1000.milliseconds
 
 class TaskController : KoinComponent {
     private val repository: TaskRepository by inject()
+    private val dataRepository: DataRepository by inject()
 
     private val urlListFlow: MutableStateFlow<Pair<ItemCategory, List<Url>>?> =
         MutableStateFlow(null)
@@ -92,6 +94,7 @@ class TaskController : KoinComponent {
                         .replaceHtmlEntity()
                         .let {
                             Item(
+                                itemId = ItemId(url.pathSegments.last { it.isNotBlank() }),
                                 itemCategoryId = category.toId(),
                                 makerId = Maker.fromName(KakakuRegex.MAKER_NAME.first(it)).toId(),
                                 itemName = KakakuRegex.ITEM_NAME.first(it) ?: "",
@@ -119,13 +122,13 @@ class TaskController : KoinComponent {
 
     private suspend fun saveItemDetail(item: Item) {
         runCatching {
-            localRepository.saveItem(item = item)
-        }.onFailure { logger.error("saveItemDetail Exception: $it") }
+            dataRepository.saveItem(item = item)
+        }.onFailure { logger.error("saveItemDetail Exception: ${it.stackTraceToString()}") }
     }
 
     suspend fun getItemLocal(category: ItemCategory) {
         runCatching {
-            localRepository
+            dataRepository
                 .getItems(category = category, skip = 0L, limit = 1000)
                 .filterNot { it.outdated }
                 .filter { it.lastUpdate != currentDateString }

@@ -2,9 +2,13 @@ package jp.developer.bbee.assemblepc.models
 
 import kotlinx.serialization.Serializable
 
+data class FItem(
+    val item: String
+)
+
 @Serializable
 data class Item(
-    val itemId: ItemId? = null,
+    val itemId: ItemId,
     val itemCategoryId: ItemCategoryId,
     val makerId: MakerId,
     val itemName: String,
@@ -29,7 +33,7 @@ data class Item(
 
 @Serializable
 data class ItemId(
-    val id: Int,
+    val id: String,
 ) {
     override operator fun equals(other: Any?): Boolean {
         return when (other is ItemId) {
@@ -39,11 +43,11 @@ data class ItemId(
     }
 
     override fun hashCode(): Int {
-        return id
+        return id.hashCode()
     }
 
     override fun toString(): String {
-        return "$id"
+        return id
     }
 }
 

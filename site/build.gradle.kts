@@ -53,6 +53,7 @@ kotlin {
         jsMain.dependencies {
             implementation(compose.html.core)
             implementation(libs.firebase.kotlin.auth)
+            implementation(libs.firebase.kotlin.firestore)
             implementation(libs.kobweb.core)
             implementation(libs.kobweb.silk)
             // This default template uses built-in SVG icons, but what's available is limited.
@@ -66,6 +67,8 @@ kotlin {
         // Uncomment the following if you pass `includeServer = true` into the `configAsKobwebApplication` call.
         jvmMain.dependencies {
             compileOnly(libs.kobweb.api) // Provided by Kobweb backend at runtime
+            implementation(libs.kotlinx.coroutines.guava)
+            implementation(libs.kotlinx.coroutines.play.services)
             implementation(libs.exposed.core)
             implementation(libs.exposed.crypt)
             implementation(libs.exposed.dao)
@@ -74,6 +77,7 @@ kotlin {
             implementation(libs.exposed.kotlin.datetime)
             implementation(libs.exposed.money)
             implementation(libs.firebase.admin)
+            implementation(libs.firebase.firestore)
             implementation(libs.h2.database)
             implementation(libs.kotlinx.serialization)
             implementation(libs.ktor.client.core.jvm)

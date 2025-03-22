@@ -23,9 +23,9 @@ import jp.developer.bbee.assemblepc.models.ItemId
 import jp.developer.bbee.assemblepc.models.MakerId
 import jp.developer.bbee.assemblepc.models.Price
 import jp.developer.bbee.assemblepc.models.Profile
-import jp.developer.bbee.assemblepc.task.data.repository.LocalRepository
+import jp.developer.bbee.assemblepc.task.data.repository.DataRepository
 import jp.developer.bbee.assemblepc.util.currentDateTime
-import jp.developer.bbee.assemblepc.util.localRepository
+import jp.developer.bbee.assemblepc.util.dataRepository
 import jp.developer.bbee.assemblepc.util.logger
 import jp.developer.bbee.assemblepc.util.toDateString
 import jp.developer.bbee.assemblepc.util.toDateTimeString
@@ -56,7 +56,7 @@ import org.jetbrains.exposed.sql.update
 fun initDatabase(context: InitApiContext) {
     context.logger.debug("initDatabase() called")
     H2DB(context).also { db ->
-        localRepository = db
+        dataRepository = db
         context.data.add(db)
     }
 
@@ -70,7 +70,7 @@ fun initDatabase(context: InitApiContext) {
     }
 }
 
-class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository {
+class H2DB(private val context: InitApiContext) : H2Repository, DataRepository {
     private val database = Database.connect(
         url = "jdbc:h2:~/pcassem_db2/kakakudb", // Test db file
 //        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;", // TODO: In memory DB for debug
@@ -354,7 +354,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         return transaction(database) {
             context.logger.debug("updateAssemblyDetail() start update")
             AssemblyDetails.update(where = { AssemblyDetails.detailId eq detailId.id }) {
-                it[itemId] = detail.item.itemId!!.id
+                it[itemId] = detail.item.itemId.id
                 it[priceAtRegistered] = detail.priceAtRegistered.value
                 it[updatedAt] = now
             }.let { result ->
@@ -550,7 +550,7 @@ class H2DB(private val context: InitApiContext) : H2Repository, LocalRepository 
         }
     }
 
-    private fun updateItem(item: Item, itemId: Int, now: LocalDateTime): Boolean {
+    private fun updateItem(item: Item, itemId: String, now: LocalDateTime): Boolean {
         return transaction(database) {
             context.logger.debug("updateItem() start update")
             Items.update(where = { Items.itemId eq itemId } ) {

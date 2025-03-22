@@ -32,7 +32,7 @@ object Users : Table() {
 }
 
 object Items : Table() {
-    val itemId: Column<Int> = integer("ITEM_ID").autoIncrement()
+    val itemId: Column<String> = varchar("ITEM_ID", 255)
     val itemCategoryId: Column<Int> = integer("ITEM_CATEGORY_ID")
     val makerId: Column<Int> = integer("MAKER_ID")
     val itemName: Column<String> = varchar("ITEM_NAME", 255)
@@ -94,7 +94,7 @@ object AssemblyDetails : Table() {
     val detailId: Column<Int> = integer("DETAIL_ID").autoIncrement()
     val ownerUserId: Column<String> = varchar("OWNER_USER_ID", 36)
     val assemblyId: Column<Int> = integer("ASSEMBLY_ID")
-    val itemId: Column<Int> = integer("ITEM_ID")
+    val itemId: Column<String> = varchar("ITEM_ID", 255)
     val priceAtRegistered: Column<Int> = integer("PRICE_AT_REGISTERED")
     val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
     val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
@@ -106,7 +106,7 @@ object AssemblyDetails : Table() {
 object FavoriteItems : Table() {
     val id: Column<Int> = integer("ID").autoIncrement()
     val ownerUserId: Column<String> = varchar("OWNER_USER_ID", 36)
-    val itemId: Column<Int> = integer("ITEM_ID")
+    val itemId: Column<String> = varchar("ITEM_ID", 255)
     val createdAt: Column<LocalDateTime> = datetime("CREATED_AT")
     val updatedAt: Column<LocalDateTime> = datetime("UPDATED_AT")
 
